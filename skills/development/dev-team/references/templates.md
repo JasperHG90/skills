@@ -395,4 +395,3 @@ The report must be **self-contained** — inline CSS, no external dependencies, 
 ```
 
 Adapt this skeleton as needed — add sections, repeat cards, embed figures as inline SVG or base64 `<img>` tags. The key requirement is that ALL artifacts are included in the report, either as embedded content or within collapsible `<details>` sections.
-

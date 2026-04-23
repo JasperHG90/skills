@@ -6,6 +6,7 @@
 
 Every mutating subcommand: appends event → updates state.json → re-renders dashboard.html.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -42,6 +43,7 @@ STATUS_MAP = {
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -68,6 +70,7 @@ def _extract_workstream(subject: str) -> str | None:
 # ---------------------------------------------------------------------------
 # State management
 # ---------------------------------------------------------------------------
+
 
 def empty_state(team_name: str = "", project_title: str = "") -> dict:
     return {
@@ -135,7 +138,8 @@ def apply_event(state: dict, event: dict) -> dict:
     elif t == "task.create":
         s["tasks"][data["id"]] = {
             "subject": data["subject"],
-            "workstream": data.get("workstream") or _extract_workstream(data["subject"]),
+            "workstream": data.get("workstream")
+            or _extract_workstream(data["subject"]),
             "status": data.get("status", "backlog"),
             "owner": data.get("owner"),
             "certainty": None,
@@ -150,9 +154,9 @@ def apply_event(state: dict, event: dict) -> dict:
                 if k in data:
                     s["tasks"][tid][k] = data[k]
             if "subject" in data:
-                s["tasks"][tid]["workstream"] = (
-                    data.get("workstream") or _extract_workstream(data["subject"])
-                )
+                s["tasks"][tid]["workstream"] = data.get(
+                    "workstream"
+                ) or _extract_workstream(data["subject"])
 
     elif t == "task.dod":
         tid = data["id"]
@@ -168,11 +172,15 @@ def apply_event(state: dict, event: dict) -> dict:
     elif t == "tasks.synced":
         for task in data.get("tasks", []):
             tid = task["id"]
-            status = STATUS_MAP.get(task.get("status", "pending"), task.get("status", "backlog"))
+            status = STATUS_MAP.get(
+                task.get("status", "pending"), task.get("status", "backlog")
+            )
             ws = task.get("workstream") or _extract_workstream(task.get("subject", ""))
             if tid in s["tasks"]:
                 s["tasks"][tid]["status"] = status
-                s["tasks"][tid]["subject"] = task.get("subject", s["tasks"][tid]["subject"])
+                s["tasks"][tid]["subject"] = task.get(
+                    "subject", s["tasks"][tid]["subject"]
+                )
                 s["tasks"][tid]["owner"] = task.get("owner", s["tasks"][tid]["owner"])
                 s["tasks"][tid]["workstream"] = ws or s["tasks"][tid].get("workstream")
             else:
@@ -210,7 +218,9 @@ def apply_event(state: dict, event: dict) -> dict:
             s["rework"][data["id"]]["resolved"] = True
 
     elif t == "timeline.event":
-        s["timeline"].append({"ts": event.get("ts", _now()), "message": data["message"]})
+        s["timeline"].append(
+            {"ts": event.get("ts", _now()), "message": data["message"]}
+        )
 
     return s
 
@@ -231,6 +241,7 @@ def rebuild_state(d: Path) -> dict:
 # ---------------------------------------------------------------------------
 # Rendering
 # ---------------------------------------------------------------------------
+
 
 def _certainty_color(n: int | None) -> str:
     if n is None:
@@ -271,7 +282,12 @@ def render(d: Path, state: dict) -> None:
     tmpl = env.get_template("dashboard.html.j2")
 
     # Prepare grouped tasks by status
-    columns = {"backlog": [], "in_progress": [], "in_review": [], "done": []}
+    columns: dict[str, list] = {
+        "backlog": [],
+        "in_progress": [],
+        "in_review": [],
+        "done": [],
+    }
     for tid, task in state.get("tasks", {}).items():
         col = task.get("status", "backlog")
         if col not in columns:
@@ -279,8 +295,12 @@ def render(d: Path, state: dict) -> None:
         columns[col].append({"id": tid, **task})
 
     # Active blockers/rework
-    active_blockers = {k: v for k, v in state.get("blockers", {}).items() if not v.get("resolved")}
-    active_rework = {k: v for k, v in state.get("rework", {}).items() if not v.get("resolved")}
+    active_blockers = {
+        k: v for k, v in state.get("blockers", {}).items() if not v.get("resolved")
+    }
+    active_rework = {
+        k: v for k, v in state.get("rework", {}).items() if not v.get("resolved")
+    }
 
     # Active tasks (in_progress + in_review) for DoD table
     active_tasks = columns["in_progress"] + columns["in_review"]
@@ -307,6 +327,7 @@ def render(d: Path, state: dict) -> None:
 # Mutate helper: event → apply → append → save → render
 # ---------------------------------------------------------------------------
 
+
 def _mutate(d: Path, event: dict) -> None:
     state = load_state(d)
     apply_event(state, event)
@@ -319,6 +340,7 @@ def _mutate(d: Path, event: dict) -> None:
 # CLI subcommand handlers
 # ---------------------------------------------------------------------------
 
+
 def cmd_init(args: argparse.Namespace) -> None:
     af = Path.cwd() / ".dev-team-artifacts"
     d = af / args.team
@@ -326,11 +348,19 @@ def cmd_init(args: argparse.Namespace) -> None:
     (af / ".active-team").write_text(args.team + "\n")
 
     state = empty_state(args.team, args.title)
-    event = {"ts": _now(), "type": "meta.init", "data": {"team_name": args.team, "project_title": args.title}}
+    event = {
+        "ts": _now(),
+        "type": "meta.init",
+        "data": {"team_name": args.team, "project_title": args.title},
+    }
     append_event(d, event)
     apply_event(state, event)
     # Add initial timeline event
-    init_timeline = {"ts": _now(), "type": "timeline.event", "data": {"message": f"Team '{args.team}' initialized"}}
+    init_timeline = {
+        "ts": _now(),
+        "type": "timeline.event",
+        "data": {"message": f"Team '{args.team}' initialized"},
+    }
     append_event(d, init_timeline)
     apply_event(state, init_timeline)
     save_state(d, state)
@@ -354,7 +384,11 @@ def cmd_phase(args: argparse.Namespace) -> None:
     event = {"ts": _now(), "type": "phase.transition", "data": {"phase": phase}}
     _mutate(d, event)
     # Add timeline event
-    tl = {"ts": _now(), "type": "timeline.event", "data": {"message": f"Entered Phase {phase}: {PHASES[phase]}"}}
+    tl = {
+        "ts": _now(),
+        "type": "timeline.event",
+        "data": {"message": f"Entered Phase {phase}: {PHASES[phase]}"},
+    }
     state = load_state(d)
     apply_event(state, tl)
     append_event(d, tl)
@@ -365,7 +399,11 @@ def cmd_phase(args: argparse.Namespace) -> None:
 
 def cmd_agent_spawn(args: argparse.Namespace) -> None:
     d = _resolve_dir(args)
-    event = {"ts": _now(), "type": "agent.spawn", "data": {"name": args.name, "role": args.role}}
+    event = {
+        "ts": _now(),
+        "type": "agent.spawn",
+        "data": {"name": args.name, "role": args.role},
+    }
     _mutate(d, event)
     print(f"Agent '{args.name}' spawned")
 
@@ -377,7 +415,11 @@ def cmd_agent_status(args: argparse.Namespace) -> None:
     state = load_state(d)
     if args.name not in state.get("agents", {}):
         sys.exit(f"Agent '{args.name}' not found")
-    event = {"ts": _now(), "type": "agent.status", "data": {"name": args.name, "status": args.status}}
+    event = {
+        "ts": _now(),
+        "type": "agent.status",
+        "data": {"name": args.name, "status": args.status},
+    }
     _mutate(d, event)
     print(f"Agent '{args.name}' status → {args.status}")
 
@@ -406,7 +448,11 @@ def cmd_task_dod(args: argparse.Namespace) -> None:
     if args.gate not in valid_gates:
         sys.exit(f"Gate must be one of: {', '.join(valid_gates)}")
     value = args.value.lower() in ("true", "1", "yes")
-    event = {"ts": _now(), "type": "task.dod", "data": {"id": args.id, "gate": args.gate, "value": value}}
+    event = {
+        "ts": _now(),
+        "type": "task.dod",
+        "data": {"id": args.id, "gate": args.gate, "value": value},
+    }
     _mutate(d, event)
     print(f"Task '{args.id}' DoD gate '{args.gate}' → {value}")
 
@@ -431,7 +477,11 @@ def cmd_blocker_add(args: argparse.Namespace) -> None:
     state = load_state(d)
     if args.task not in state.get("tasks", {}):
         sys.exit(f"Task '{args.task}' not found")
-    event = {"ts": _now(), "type": "blocker.add", "data": {"id": args.id, "task_id": args.task, "reason": args.reason}}
+    event = {
+        "ts": _now(),
+        "type": "blocker.add",
+        "data": {"id": args.id, "task_id": args.task, "reason": args.reason},
+    }
     _mutate(d, event)
     print(f"Blocker '{args.id}' added")
 
@@ -453,7 +503,16 @@ def cmd_rework_add(args: argparse.Namespace) -> None:
         sys.exit(f"Task '{args.task}' not found")
     if not 1 <= args.cycle <= 3:
         sys.exit("Cycle must be 1-3")
-    event = {"ts": _now(), "type": "rework.add", "data": {"id": args.id, "task_id": args.task, "issue": args.issue, "cycle": args.cycle}}
+    event = {
+        "ts": _now(),
+        "type": "rework.add",
+        "data": {
+            "id": args.id,
+            "task_id": args.task,
+            "issue": args.issue,
+            "cycle": args.cycle,
+        },
+    }
     _mutate(d, event)
     print(f"Rework '{args.id}' added (cycle {args.cycle})")
 
@@ -487,16 +546,23 @@ def cmd_rebuild(args: argparse.Namespace) -> None:
     state = rebuild_state(d)
     save_state(d, state)
     render(d, state)
-    print(f"State rebuilt from events.jsonl, dashboard rendered at {d / 'dashboard.html'}")
+    print(
+        f"State rebuilt from events.jsonl, dashboard rendered at {d / 'dashboard.html'}"
+    )
 
 
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
-    parser = argparse.ArgumentParser(prog="dashboard", description="Dev-team dashboard CLI")
-    parser.add_argument("--dir", help="Team artifact directory (overrides .active-team)")
+    parser = argparse.ArgumentParser(
+        prog="dashboard", description="Dev-team dashboard CLI"
+    )
+    parser.add_argument(
+        "--dir", help="Team artifact directory (overrides .active-team)"
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     # init
@@ -531,7 +597,11 @@ def main() -> None:
     # task-dod
     p = sub.add_parser("task-dod", help="Flip a DoD gate on a task")
     p.add_argument("--id", required=True)
-    p.add_argument("--gate", required=True, help="code_complete|tests_pass|peer_review|test_specialist|qa_go")
+    p.add_argument(
+        "--gate",
+        required=True,
+        help="code_complete|tests_pass|peer_review|test_specialist|qa_go",
+    )
     p.add_argument("--value", required=True, help="true|false")
 
     # task-certainty
