@@ -1,0 +1,51 @@
+name: checks
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PYTHON_VERSION: '3.12'
+  UV_VERSION: '0.9.x'
+
+jobs:
+  pre-commit:
+    name: Run pre-commit checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run pre-commit checks
+        uses: ./.github/actions/pre_commit
+        with:
+          python_version: ${{ env.PYTHON_VERSION }}
+          prek_version: '0.3.3'
+
+  check-skills:
+    name: Check Skill Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get changed skills
+        id: changed-skills
+        uses: tj-actions/changed-files@v45
+        with:
+          files: skills/*/**
+          dir_names: true
+          dir_names_max_depth: 2
+      - name: Run skill formatting checks
+        if: steps.changed-skills.outputs.any_changed == 'true'
+        uses: ./.github/actions/check_skill_formatting
+        with:
+          skill_dirs: ${{ steps.changed-skills.outputs.all_changed_files }}

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="60">
+<title>Dev Team Dashboard: {{ state.project_title }}</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; line-height: 1.5; color: #1a1a1a; max-width: 1200px; margin: 0 auto; padding: 1.5rem; background: #f8fafc; }
+  h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+  .header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem; border-bottom: 3px solid #2563eb; padding-bottom: 0.75rem; }
+  .header .meta { color: #64748b; font-size: 0.85rem; }
+
+  /* Phase progress */
+  .phase-bar { display: flex; gap: 2px; margin-bottom: 1.5rem; }
+  .phase-step { flex: 1; text-align: center; padding: 0.5rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; }
+  .phase-done { background: #16a34a; color: white; }
+  .phase-active { background: #2563eb; color: white; animation: pulse 2s infinite; }
+  .phase-pending { background: #e2e8f0; color: #94a3b8; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+
+  /* Grid layout */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+  .grid-full { grid-column: 1 / -1; }
+
+  /* Cards */
+  .card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; }
+  .card h2 { font-size: 1.1rem; margin-bottom: 0.75rem; color: #1e40af; }
+
+  /* Agent roster */
+  .agent-list { list-style: none; }
+  .agent-list li { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #f1f5f9; }
+  .agent-list li:last-child { border-bottom: none; }
+  .badge { padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+  .badge-active { background: #dcfce7; color: #16a34a; }
+  .badge-idle { background: #fef9c3; color: #a16207; }
+  .badge-down { background: #f1f5f9; color: #94a3b8; }
+
+  /* Kanban board */
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+  .kanban-col h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; padding-bottom: 0.25rem; border-bottom: 2px solid #e2e8f0; }
+  .kanban-col h3 .count { background: #e2e8f0; border-radius: 9999px; padding: 0.1rem 0.4rem; font-size: 0.75rem; margin-left: 0.25rem; }
+  .task-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.6rem; margin-bottom: 0.5rem; font-size: 0.85rem; }
+  .task-card .task-title { font-weight: 600; margin-bottom: 0.25rem; }
+  .task-card .task-meta { color: #64748b; font-size: 0.75rem; display: flex; justify-content: space-between; }
+
+  /* DoD gates */
+  .dod-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .dod-table th, .dod-table td { padding: 0.4rem 0.5rem; border: 1px solid #e2e8f0; text-align: center; }
+  .dod-table th { background: #f1f5f9; font-weight: 600; }
+  .dod-table td:first-child { text-align: left; }
+  .gate-pass { color: #16a34a; }
+  .gate-fail { color: #dc2626; }
+  .gate-pending { color: #d97706; }
+
+  /* Certainty heatmap */
+  .certainty-row { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #f1f5f9; }
+  .certainty-bar { width: 60%; height: 1.2rem; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+  .certainty-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .cert-red { background: #ef4444; }
+  .cert-yellow { background: #eab308; }
+  .cert-green { background: #16a34a; }
+
+  /* Blockers */
+  .blocker { background: #fef2f2; border-left: 3px solid #dc2626; padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.85rem; }
+  .rework { background: #fffbeb; border-left: 3px solid #d97706; padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.85rem; }
+
+  /* Timeline */
+  .timeline { list-style: none; border-left: 2px solid #e2e8f0; padding-left: 1rem; }
+  .timeline li { position: relative; padding-bottom: 0.75rem; font-size: 0.85rem; }
+  .timeline li::before { content: ''; position: absolute; left: -1.35rem; top: 0.35rem; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: #2563eb; border: 2px solid white; }
+  .timeline .time { color: #64748b; font-size: 0.75rem; }
+  .timeline .empty { color: #94a3b8; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>{{ state.project_title }}</h1>
+    <div class="meta">Team: {{ state.team_name }}</div>
+  </div>
+  <div class="meta">Last updated: {{ state.last_updated }}<br>Auto-refreshes every 60s</div>
+</div>
+
+<!-- Phase Progress -->
+<div class="phase-bar">
+  {% for i in range(5) %}
+  {% if i < state.current_phase %}
+  <div class="phase-step phase-done">Phase {{ i }}<br>{{ phases[i] }}</div>
+  {% elif i == state.current_phase %}
+  <div class="phase-step phase-active">Phase {{ i }}<br>{{ phases[i] }}</div>
+  {% else %}
+  <div class="phase-step phase-pending">Phase {{ i }}<br>{{ phases[i] }}</div>
+  {% endif %}
+  {% endfor %}
+</div>
+
+<div class="grid">
+
+  <!-- Agent Roster -->
+  <div class="card">
+    <h2>Agents</h2>
+    <ul class="agent-list">
+      {% for name, agent in state.agents.items() %}
+      <li>
+        <span><strong>{{ name }}</strong> &mdash; {{ agent.role }}</span>
+        <span class="badge badge-{{ agent.status }}">{{ agent.status }}</span>
+      </li>
+      {% else %}
+      <li style="color: #94a3b8; font-style: italic;">No agents spawned yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Certainty Heatmap -->
+  <div class="card">
+    <h2>Certainty</h2>
+    {% set has_certainty = [] %}
+    {% for name, agent in state.agents.items() if agent.certainty is not none %}
+    {% if has_certainty.append(1) %}{% endif %}
+    <div class="certainty-row">
+      <span style="width:35%"><strong>{{ name }}</strong></span>
+      <div class="certainty-bar">
+        <div class="certainty-fill {{ agent.certainty | certainty_color }}" style="width: {{ agent.certainty }}%"></div>
+      </div>
+      <span style="width:3rem; text-align:right">{{ agent.certainty }}%</span>
+    </div>
+    {% endfor %}
+    {% if not has_certainty %}
+    <p style="color: #94a3b8; font-size: 0.85rem;">No certainty reports yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- Task Board (Kanban) -->
+  <div class="card grid-full">
+    <h2>Task Board</h2>
+    <div class="kanban">
+      <div class="kanban-col">
+        <h3>Backlog <span class="count">{{ columns.backlog | length }}</span></h3>
+        {% for task in columns.backlog %}
+        <div class="task-card">
+          <div class="task-title">{{ task.subject }}</div>
+          <div class="task-meta"><span>{{ task.workstream or "" }}</span><span>{{ task.owner or "unassigned" }}</span></div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="kanban-col">
+        <h3>In Progress <span class="count">{{ columns.in_progress | length }}</span></h3>
+        {% for task in columns.in_progress %}
+        <div class="task-card">
+          <div class="task-title">{{ task.subject }}</div>
+          <div class="task-meta"><span>{{ task.owner or "" }}</span><span>{% if task.certainty is not none %}Cert: {{ task.certainty }}%{% endif %}</span></div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="kanban-col">
+        <h3>In Review <span class="count">{{ columns.in_review | length }}</span></h3>
+        {% for task in columns.in_review %}
+        <div class="task-card">
+          <div class="task-title">{{ task.subject }}</div>
+          <div class="task-meta"><span>{{ task.owner or "" }}</span><span>{% if task.certainty is not none %}Cert: {{ task.certainty }}%{% endif %}</span></div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="kanban-col">
+        <h3>Done <span class="count">{{ columns.done | length }}</span></h3>
+        {% for task in columns.done %}
+        <div class="task-card">
+          <div class="task-title">{{ task.subject }}</div>
+          <div class="task-meta"><span>{{ task.owner or "" }}</span><span>&#x2713;</span></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- DoD Gate Tracker -->
+  <div class="card grid-full">
+    <h2>DoD Gates &mdash; Active Tasks</h2>
+    {% if active_tasks %}
+    <table class="dod-table">
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Code Complete</th>
+          <th>Tests Pass</th>
+          <th>Peer Review</th>
+          <th>Test Specialist</th>
+          <th>QA GO</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in active_tasks %}
+        <tr>
+          <td>{{ task.subject }}</td>
+          {% for gate_key in ["code_complete", "tests_pass", "peer_review", "test_specialist", "qa_go"] %}
+          {% set sym, cls = gate_symbol(task.dod[gate_key]) %}
+          <td class="{{ cls }}">{{ sym }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color: #94a3b8; font-size: 0.85rem;">No active tasks.</p>
+    {% endif %}
+  </div>
+
+  <!-- Blockers & Rework -->
+  <div class="card">
+    <h2>Blockers &amp; Rework</h2>
+    {% if not active_blockers and not active_rework %}
+    <p style="color: #94a3b8; font-size: 0.85rem;">No active blockers or rework items.</p>
+    {% endif %}
+    {% for bid, blocker in active_blockers.items() %}
+    <div class="blocker"><strong>BLOCKED</strong>: {{ blocker.task_id }} &mdash; {{ blocker.reason }}</div>
+    {% endfor %}
+    {% for rid, rw in active_rework.items() %}
+    <div class="rework"><strong>REWORK</strong>: {{ rw.task_id }} &mdash; {{ rw.issue }} (cycle {{ rw.cycle }}/3)</div>
+    {% endfor %}
+  </div>
+
+  <!-- Timeline -->
+  <div class="card">
+    <h2>Timeline</h2>
+    <ul class="timeline">
+      {% for evt in state.timeline | reverse %}
+      <li><span class="time">{{ evt.ts | time_format }}</span> &mdash; {{ evt.message }}</li>
+      {% else %}
+      <li class="empty">No events yet &mdash; team just started.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+</div>
+
+</body>
+</html>
