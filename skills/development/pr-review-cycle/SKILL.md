@@ -90,6 +90,8 @@ Ask a focused question — use `AskUserQuestion` if available with up to 4 optio
 
 For each finding the user accepts, also capture any rejection rationale: sometimes a finding reflects a design decision the user is comfortable with (e.g., "base64 input deliberately diverges from MCP — documented as such"). Record these as rejection-with-rationale entries and respond to them with a PR comment (Phase 6) rather than a code change.
 
+**Reviewer-overreach guard**: Automated reviewers fabricate findings — they flag non-bugs, misread control flow, and invent risks the code already handles. Treat every finding as a *claim to verify*, not ground truth. Before patching, read the cited code and confirm the issue is real. If a finding is wrong, mark it rejected-with-rationale (Phase 6 posts the explanation) rather than "fixing" code that was already correct — a spurious fix can introduce the very bug the reviewer only imagined.
+
 ### Phase 4: Generate fixes
 
 For each accepted finding, produce a fix. Group logically — commits should reflect intent, not arbitrary batches. Good patterns:
@@ -102,6 +104,8 @@ Use conventional commits. Scope = the package/module most affected (e.g., `herme
 
 **Docs-only resolutions**: sometimes a finding's fix is "the current behavior is intentional, document it". Accept that as a valid resolution type — add a code comment or docstring, commit with `docs(scope): document <behavior> (addresses review finding)`. Don't over-engineer if the underlying concern is already handled.
 
+**Scope discipline — pause and file, don't expand**: Keep each fix scoped to its finding. If a fix turns out to need broader work (renaming an API, restructuring a module, touching unrelated files), stop. Don't let a review-cycle commit balloon into an unscoped refactor — the PR branch is shared state, and surprise refactors make the diff unreviewable. File a follow-up issue (`gh issue create`) describing the larger work, then either apply the minimal fix for the finding or defer it per the user's call.
+
 **Branch / worktree discipline**:
 - If the PR branch is checked out in multiple worktrees, git will refuse a second checkout. Work in the worktree where the branch is already checked out, or create a fresh worktree for the purpose.
 - Use `git -C /path/to/worktree ...` and absolute paths for file edits if your session's cwd is fixed to a different worktree. This avoids branch-collision errors and cross-worktree race conditions.
@@ -112,6 +116,12 @@ Use conventional commits. Scope = the package/module most affected (e.g., `herme
 Run the project's test command before committing. Minimum: the test file(s) relevant to the changed code. Better: the full test suite for the changed package.
 
 If the project has a lint/format/type-check gate (`just prek`, `npm run lint`, `cargo fmt`, `pnpm check`), run it too. Many review bots flag style issues that the linter would have caught; running prek first avoids a pointless second round of findings.
+
+**Report verification concisely**: Don't paste raw test/lint output into the thread. Surface a one-line verdict plus only the relevant failure lines — e.g. "Tests: 142 passed. Lint: clean." or "Tests: 1 failed — `test_sanitize_filename` (AssertionError on `../` input); fixing before commit." Full logs are context pollution; the user wants pass/fail and the actionable error, not 200 green lines.
+
+**Scope-check the diff before committing**: Run `git diff --stat` and confirm every changed file traces to an accepted finding. If the diff touches files or functions unrelated to the findings (an unprompted refactor, a reformatted file, a stray dependency bump), back it out or split it into its own clearly-labelled commit and flag it to the user. Review-cycle commits should contain only what the findings called for.
+
+**Verification gate before push**: Do not push if tests or the lint gate are failing. Fix the cause or stop and report — never `--no-verify` past a hook to update the PR.
 
 Commit with the conventional message. Then confirm with the user before pushing — push updates the PR and notifies reviewers. Example confirmation:
 
@@ -142,6 +152,7 @@ gh pr comment <PR> --body "<explanation>" --repo <owner/repo>
 Exit the cycle when:
 - The user says they're done.
 - No High/Medium findings remain.
+- The latest iteration raised no NEW findings — only repeats of items already triaged or deferred. Re-reviews on deep codebases will always surface *something*; the convergence criterion is "no new issues", not a theoretical zero.
 - A rework cycle limit is hit (default 3 — escalate to the user if still iterating at that point).
 
 ## Safety rules

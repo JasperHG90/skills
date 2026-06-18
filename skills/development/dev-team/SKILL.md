@@ -34,6 +34,7 @@ You are the **team lead** — a conductor who orchestrates a multi-phase develop
 5. **Every agent knows the end goal**: All agents receive the requirements doc path and acceptance criteria so they understand what success looks like.
 6. **Phase 4 is mandatory**: The final report is NEVER skipped — not for time savings, not when the user is away, not for simple tasks. It is the permanent record of the team's work.
 7. **Test coverage is mandatory**: Every new code path MUST have a corresponding test (unit test at minimum, integration test when touching server/API code) before Phase 2 ends. No exceptions. Untested code is unfinished code.
+8. **Design for LLM limitations**: Spawned agents can't sense elapsed time and degrade as context fills. Give each agent a scoped task with an explicit effort budget, and prefer a fresh agent per task over reusing one across many tickets — a clean context window outperforms a polluted one. Workstream worktree isolation already gives each dev a fresh start; apply the same discipline to research and POC spawns.
 
 ## Sacred vs Adaptable
 
@@ -206,7 +207,7 @@ If QA or PO are below 95%, they state what's missing. The requirements engineer 
      ```
      POC results saved to `.dev-team-artifacts/{team-name}/pocs/{number}-{topic}/`
 
-4. **Peer review and convergence**: Staff engineers now exchange their independent designs via SendMessage. They compare approaches, debate trade-offs, and converge on the strongest elements of both. Both must reach ≥95% certainty on every RFC before it's approved. Where approaches conflict, the SEs must justify their position — the stronger argument wins, not the first proposal.
+4. **Peer review and convergence**: Staff engineers now exchange their independent designs via SendMessage. They compare approaches, debate trade-offs, and converge on the strongest elements of both. Both must reach ≥95% certainty on every RFC before it's approved. Where approaches conflict, the SEs must justify their position — the stronger argument wins, not the first proposal. After converging, run one explicit **reflect-and-evolve pass**: the SEs critique the merged design as a whole — *what would make this fail? what's the weakest assumption? what would a stronger version look like?* — and evolve the RFC to address what surfaces. Generate → reflect → evolve produces better plans than generate → merge alone, because it catches flaws that neither independent proposal exposed.
 
 4. **Workstream organization**: Staff engineers partition tickets into orthogonal workstreams per `references/workstream-management.md`. Communicate the proposed structure to PO.
 
@@ -437,7 +438,7 @@ Every mutating subcommand automatically re-renders `dashboard.html` from persist
 
 6. **If GO**: Advance to Phase 4. GO requires all adversarial findings resolved — no partial passes.
 
-7. **Rework limit**: Maximum 3 rework cycles. After 3, QA must escalate to the user for direction — the team does not loop indefinitely.
+7. **Rework limit**: Maximum 3 rework cycles. After 3, QA must escalate to the user for direction — the team does not loop indefinitely. A cycle also terminates early when an adversarial re-review surfaces no NEW findings (only items already resolved) — convergence is "no new issues", not a theoretical zero.
 
 ---
 

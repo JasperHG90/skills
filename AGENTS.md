@@ -46,6 +46,10 @@ Must contain YAML frontmatter followed by Markdown instructions.
 - Focus on what the agent *wouldn't know without the skill*: project conventions, domain procedures, non-obvious edge cases, specific tools/APIs.
 - Favor procedures over declarations. Teach the agent *how to approach* a class of problems, not *what to produce* for a specific instance.
 - Provide defaults, not menus. Pick one recommended approach; mention alternatives briefly.
+- State **when NOT to use** the skill, not just when to. Explicit anti-conditions stop the skill from firing on adjacent-but-wrong tasks (e.g. `pr-review-cycle` lists "Do NOT fire this skill for…"). This is the inverse of the `description`'s trigger keywords and just as important.
+- Describe **end states**, not rigid step sequences, where the agent reasons better from a goal ("the result is a committed migration with passing tests") than from a brittle script.
+- For data transforms, field renames, or schema maps, give explicit `old → new` **tables**, not prose. Prose leaves too much to inference; tables eliminate guessing.
+- Mark explicit **"don't touch" / exclusion zones** for skills that modify code, so the agent doesn't make unprompted changes outside the task.
 - Include a gotchas section for environment-specific facts that defy reasonable assumptions.
 - Use templates for output format requirements.
 - Use checklists for multi-step workflows.
@@ -86,3 +90,7 @@ Use the [skills-ref](https://github.com/agentskills/agentskills/tree/main/skills
 ```bash
 skills-ref validate ./skill-name
 ```
+
+## Further reading
+
+For deeper guidance on writing trigger-friendly `description` fields, the three-tier progressive-disclosure model, and an eval/benchmark harness for measuring and iterating on a skill, see Anthropic's [`skill-creator`](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md). The conventions above are the house rules for this repo; `skill-creator` is the canonical reference for the mechanics it covers.

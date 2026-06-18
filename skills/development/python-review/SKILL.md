@@ -74,6 +74,16 @@ Work through the ladder of abstraction. For each level, ask yourself: "Is there 
 
 For language-specific analysis, read `references/checklist.md` — it contains detailed patterns and anti-patterns organized by language, with a deep section on Python. Only load this when you need language-specific detail; the architectural levels above are language-agnostic and come first.
 
+#### Optional: lensed passes for high-stakes reviews
+
+The ladder above is the default single-pass structure. For high-stakes or thorough reviews — security-sensitive code, performance-critical paths, or when the user explicitly asks for a deep review — make separate focused passes instead of one monolithic sweep. Each lens primes you to see a different failure class that a general pass tends to miss:
+
+- **Security lens**: injection, auth/authz gaps, unsafe deserialization, secrets in code, path traversal, SSRF, unvalidated input at trust boundaries.
+- **Performance lens**: N+1 queries, unbounded loops/allocations, blocking calls in async paths, missing pagination, accidental O(n²).
+- **Correctness/concurrency lens**: race conditions, error-handling gaps, resource leaks, off-by-one and boundary conditions, mishandled edge cases.
+
+Run only the lenses the code warrants, then merge their findings into the single review structure below — don't emit three separate reports. Skip this entirely for small or low-risk reviews; one pass through the ladder is enough.
+
 ### Step 3: Write the review
 
 Use this structure:
