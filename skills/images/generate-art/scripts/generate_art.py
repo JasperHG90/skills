@@ -8,14 +8,13 @@
 # ///
 """Generate artwork with Nano Banana Pro (Gemini 3 Pro Image).
 
-Build-time asset tooling. NOT part of the game runtime — the game's only LLM is
-Nous Hermes via LLMClient (see .claude/rules). This script never ships in the
-round loop; it produces static image files checked into the repo.
+Build-time asset tooling. It produces static image files (PNGs) to be checked
+into a repo; it is not meant to run inside an application's runtime.
 
 Run:
-    uv run tools/generate_art.py --prompt "..." --out docs/assets/board.png
-    uv run tools/generate_art.py --prompt-file /tmp/p.txt --out frontend/public/engineers/foo.png --aspect 3:4
-    uv run tools/generate_art.py --prompt "..." --out x.png --ref existing.png   # style/edit continuity
+    uv run generate_art.py --prompt "..." --out docs/assets/diagram.png
+    uv run generate_art.py --prompt-file /tmp/p.txt --out assets/portraits/foo.png --aspect 3:4
+    uv run generate_art.py --prompt "..." --out x.png --ref existing.png   # style/edit continuity
 
 Reads GEMINI_API_KEY (falls back to GOOGLE_API_KEY) from the environment.
 """
@@ -61,7 +60,7 @@ VALID_SIZES = {"1K", "2K", "4K"}
 DEFAULT_STYLES_DIR = Path("docs/styles")
 
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
-DEFAULT_CAST_DIR = Path("frontend/public/engineers")
+DEFAULT_CAST_DIR = Path("assets/portraits")
 
 
 def parse_args() -> argparse.Namespace:
@@ -98,7 +97,7 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--style",
-        help="Named style preset from --styles-dir (e.g. 'engineers').",
+        help="Named style preset from --styles-dir (e.g. 'house').",
     )
     p.add_argument(
         "--styles-dir",
@@ -114,8 +113,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--cast",
         metavar="NAME|random",
-        help="Opt-in: feature a real engineer's likeness by adding their portrait "
-        "as a ref. 'random' picks one; or pass an engineer name (file stem in "
+        help="Opt-in: feature a real person's likeness by adding their portrait "
+        "as a ref. 'random' picks one; or pass a name (file stem in "
         "--cast-dir). Off by default.",
     )
     p.add_argument(
@@ -144,7 +143,7 @@ def resolve_cast(args: argparse.Namespace) -> list[Path]:
         if not matches:
             names = ", ".join(p.stem for p in portraits)
             sys.exit(
-                f"error: no engineer '{args.cast}' in {args.cast_dir}\navailable: {names}"
+                f"error: no portrait '{args.cast}' in {args.cast_dir}\navailable: {names}"
             )
         choice = matches[0]
     print(f"cast: {choice.stem} ({choice.name})", file=sys.stderr)

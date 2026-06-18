@@ -152,12 +152,12 @@ Every CLI command, every MCP tool signature, every API endpoint, every config ke
 
 So verify before you ship. The rule has no exceptions: **no interface reference goes into the doc without a check against the source code or a runnable `--help`.**
 
-Where to check, by reference type:
+Where to check, by reference type (locate the source for the project at hand — the paths below are illustrative):
 
-- **CLI examples** — read the command file at `packages/cli/src/memex_cli/<group>.py` (or run `<cmd> --help` against a working install). Confirm: which parameters are positional Arguments, which are Options, the exact flag name, the default value, whether the option is required.
-- **MCP tool examples** — read the tool decorator in `packages/mcp/src/memex_mcp/server.py` and the parameter typing. **MCP signatures differ from CLI signatures even when they expose the same underlying capability** — MCP takes dict-shaped kwargs; typer CLIs distinguish positional Argument from Option. Inferring one from the other is unreliable.
-- **HTTP endpoint examples** — read the FastAPI route handler in `packages/core/src/memex_core/server/`.
-- **Config keys** — read the Pydantic field in `packages/common/src/memex_common/config.py`. Confirm: the field name, the type, the default, any validators that re-shape the value.
+- **CLI examples** — read the command definition in the CLI source (or run `<cmd> --help` against a working install). Confirm: which parameters are positional arguments, which are options/flags, the exact flag name, the default value, whether the option is required.
+- **RPC / tool examples** (MCP tools, RPC methods, SDK calls) — read the handler or decorator and its parameter typing. **A capability's RPC signature can differ from its CLI signature even when both expose the same underlying feature** — e.g. an MCP tool takes dict-shaped kwargs while a CLI distinguishes positional argument from option. Inferring one from the other is unreliable.
+- **HTTP endpoint examples** — read the route handler in the web framework's source (FastAPI, Express, etc.).
+- **Config keys** — read the config schema definition (Pydantic model, JSON schema, struct, etc.). Confirm: the field name, the type, the default, any validators that re-shape the value.
 - **File paths** — confirm the path exists at the version you are documenting.
 
 When shipped help text disagrees with the source code, trust the code and file the help-text bug as a follow-up. The doc reflects what the system *does*, not what some other doc says it does.
@@ -169,7 +169,7 @@ When the doc claims something about **how the system behaves internally** — *"
 Citations go in inline HTML tags so they survive markdown rendering and can be linted:
 
 ```html
-<code-ref path="packages/core/src/memex_core/services/kv.py" lines="138-141" />
+<code-ref path="src/services/kv.py" lines="138-141" />
 ```
 
 The tag carries the path and the line range. Line numbers drift over time; that is OK — they are accurate at write time, the linter can flag stale ones on docs build, and the reader still has a path-level anchor when lines have moved. The point is **grounding the claim in code that existed when the claim was made**, not pinning it forever.
