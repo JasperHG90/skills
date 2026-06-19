@@ -1,0 +1,7 @@
+# Runtime dependencies for the standalone PageIndex script.
+# Install: pip install -r requirements.txt
+# Or one-shot: uv run --with dspy --with tiktoken --with regex --with pydantic python -m pageindex ...
+dspy>=3.1
+tiktoken
+regex
+pydantic>=2

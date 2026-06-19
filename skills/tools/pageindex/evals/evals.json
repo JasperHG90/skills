@@ -1,0 +1,23 @@
+{
+  "skill_name": "pageindex",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I've got a markdown doc at .claude/skills/pageindex/evals/fixtures/atlas.md — can you build me a page index / outline of it? Use gemini (gemini/gemini-2.5-flash). I want to see the section hierarchy with short summaries.",
+      "expected_output": "Agent finds and runs the bundled script with --model gemini/gemini-2.5-flash, then renders the returned tree as a nested outline (Project Atlas > Architecture > Coordinator/Workers, etc.) and reports coverage + path_used (regex_fast).",
+      "files": ["evals/fixtures/atlas.md"]
+    },
+    {
+      "id": 1,
+      "prompt": "outline this file for me with a local model running in ollama: .claude/skills/pageindex/evals/fixtures/atlas.md (ollama is at http://localhost:11434, model llama3). keep the concurrency low so it doesn't hammer my laptop.",
+      "expected_output": "Agent runs the script with --model ollama_chat/llama3 --api-base http://localhost:11434 and a low --max-concurrency. Handles the documented possibility that a small local model fails structured-output parsing (retries / reports honestly rather than presenting empty results as success).",
+      "files": ["evals/fixtures/atlas.md"]
+    },
+    {
+      "id": 2,
+      "prompt": "what's the structure of .claude/skills/pageindex/evals/fixtures/quick-note.txt? give me the page index.",
+      "expected_output": "Agent runs the script (no API key needed); recognizes the short_doc_bypass path and reports that the doc is a single short section with 100% coverage, rather than fabricating a multi-level outline.",
+      "files": ["evals/fixtures/quick-note.txt"]
+    }
+  ]
+}

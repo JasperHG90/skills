@@ -1,0 +1,3 @@
+Quick note from standup: the staging migration is scheduled for Thursday night.
+Dan owns the rollback plan and Priya is on call. No headers here, just a short
+blurb so the indexer takes its no-LLM short-document path.
