@@ -160,7 +160,9 @@ Fill the ticket template (below) from Phases 1–2.
   so explicitly — do not add one.
 - **Size** (S / M / L) and **Effort** (Low / Moderate / High) follow from anchor
   count, number of cross-cutting surfaces, migration/data involvement, and gate
-  burden. State the one-line reasoning.
+  burden. State the one-line reasoning. **Size also sets the ticket's weight** —
+  see *Output scales with size* below; an S ticket must not carry an L ticket's
+  apparatus.
 - **Decompose into subtickets** when the work spans multiple surfaces or is
   larger than ~M. Give each an imperative title and explicit `Blocked by` /
   `Blocks` dependencies.
@@ -192,6 +194,15 @@ it exists in *this* repo, and re-open each anchor. Report the outcome concretely
 in your final hand-off — e.g. "re-verified N anchors; moved 2 uncited
 requirements to Open Questions; dropped 1 principle that did not grep here."
 
+**Be honest that this is self-review.** Phase 4 is *you grading your own
+homework* in the same context that produced the draft — it catches careless
+errors but cannot certify correctness the way an independent reviewer would.
+Never dress the self-critique up as validation. Always label it "(self-review)"
+in the hand-off and in the ticket's **Confidence** field, and let the confidence
+score reflect that ceiling: a self-review pass, however diligent, does not earn
+100%. Anything you genuinely could not confirm stays an Open Question rather than
+being absorbed into a confident-sounding summary.
+
 ---
 
 ## Phase 5 — Verify anchors, write, hand off
@@ -211,8 +222,37 @@ requirements to Open Questions; dropped 1 principle that did not grep here."
    paths. Otherwise write only to `~/.claude/plans/`. Never create such a
    directory, and never write into a `BACKLOG.md`.
 5. **Hand off.** Your final message states: the ticket path(s); that it is ready
-   as plan-mode input; the Phase-4 critique outcome; and the top 1–3 Open
-   Questions plan mode should resolve first.
+   as plan-mode input; the Phase-4 critique outcome **explicitly labeled as
+   self-review (not independent verification)**; the **confidence score** and the
+   one or two things dragging it below 100%; and the top 1–3 Open Questions plan
+   mode should resolve first.
+
+---
+
+## Output scales with size — don't over-document small work
+
+A ticket's weight must match its size. An S-sized change does not need an
+L-sized apparatus; a full evidence appendix and risk matrix on a one-function
+change is noise a reviewer skims past. Match the tier:
+
+- **Trivial** → the 4-line ticket from the trivial gate above. Nothing more.
+- **S (small — few anchors, one surface, no migration)** → **lean ticket.**
+  Keep: the Size/Effort line, a 2–3 sentence Context, Requirements (only the
+  principles that actually constrain *this* change), Code surface, the gates
+  that apply, and Open questions if any. **Drop:** Non-goals (unless there is a
+  real scope-creep trap), the full Risk assessment (replace with a one-line
+  blast-radius + reversibility when both are low), and Subtickets. **Compress
+  the evidence appendix to only the rows you cited** — not the whole Phase-1
+  profile table.
+- **M / L** → the **full template.** Multiple surfaces, migrations, or parity
+  demands earn the complete apparatus: full Risk assessment, Subtickets with
+  dependencies, and the full profile appendix for reviewer auditability.
+
+The discovery rigor is identical at every tier — you always run Phases 1, 2, and
+4 in full. What scales is how much you *reprint*, not how much you *check*: an
+S-sized lean ticket is still backed by the same complete profile, you just don't
+reprint unused rows. When torn between S and M, size by blast radius, not by how
+much you happened to write.
 
 ---
 
@@ -223,11 +263,15 @@ requirements to Open Questions; dropped 1 principle that did not grep here."
 
 - **Size:** <S|M|L> · **Effort:** <Low|Moderate|High> — <one-line reasoning>
 - **Triggered by:** <bug | request | design commitment | follow-up>
+- **Confidence:** <0–100%> (self-review) — <how much of this ticket you
+  independently confirmed: anchors resolved to real lines, requirements sourced,
+  profile completeness. This is the planner's OWN estimate from a self-critique
+  pass — NOT independent verification.>
 
 ## Context
 <Why this is needed, the problem it solves, the intended outcome.>
 
-## Non-goals / out of scope
+## Non-goals / out of scope  (S: omit unless there's a real scope-creep trap)
 <Explicit exclusions — what this ticket deliberately does NOT do.>
 
 ## Requirements & restrictions
@@ -250,7 +294,7 @@ repo's actual gate files — do not assume an ecosystem:
 Gates the repo does not have are omitted, not invented. Genuine unknowns ->
 Open Questions.>
 
-## Risk assessment
+## Risk assessment  (S: one-line blast-radius + reversibility when both low; full version for M/L)
 <Blast radius: which surfaces/users/data are affected.
 Reversibility: migration? destructive change? hard to undo?
 Security/auth: does this touch authn/authz, secrets, or PII?
@@ -265,12 +309,31 @@ Likeliest failure modes: the 2-3 ways this most plausibly breaks.>
 <Everything unverified or unsourced — explicitly what plan mode must resolve
 before implementation. Downgraded anchors and UNKNOWN gates land here.>
 
-## Project profile (evidence appendix)
+## Project profile (evidence appendix)  (S: only the rows you cited; full table for M/L)
 <The Phase-1 table. Each principle/gate as `value — source:line` or UNKNOWN.
 This lets a reviewer confirm the ticket reflects THIS repo, not assumptions.>
 ```
 
 ---
+
+## Confidence score — calibration
+
+The **Confidence** field is your self-assessed truthiness of the ticket, capped
+by the fact that it is self-review. Drive the number with what you actually
+confirmed, not how the plan feels:
+
+- **High (80–95%)** — every cited anchor re-opened and resolved to the exact
+  line, every requirement sourced, profile complete, few/no Open Questions. Note
+  the ceiling: a self-review pass does not reach 100%.
+- **Medium (55–79%)** — some anchors approximate or unresolved, a partial
+  profile (large repo), or load-bearing Open Questions remain.
+- **Low (<55%)** — vague request, thin/UNKNOWN profile, or several
+  unresolved anchors. Say so plainly; a low score on an honest thin ticket beats
+  a high score on a fabricated one.
+
+A confident-sounding ticket on a shaky basis is the failure mode to avoid: if
+much of the ticket rests on unresolved anchors or UNKNOWN gates, the score must
+reflect that even when the prose reads clean.
 
 ## Quality bar
 
