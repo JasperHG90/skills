@@ -1,4 +1,11 @@
 repos:
+  - repo: local
+    hooks:
+      - id: strip-invisible-unicode
+        name: strip invisible unicode
+        entry: python scripts/strip_invisible_unicode.py
+        language: python
+        types: [text]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
