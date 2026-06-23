@@ -67,13 +67,13 @@ what good looks like, the spirit of the job.}}
 # >> not dump its working notes.
 Return exactly this structure:
 
-​```markdown
+```markdown
 ## {{Section}}
 {{what goes here}}
 
 ## Open questions
 {{ambiguities you flagged instead of guessing}}
-​```
+```
 
 ## Quality bar
 # >> What "good" looks like; a self-critique pass before returning.
@@ -109,10 +109,10 @@ You {{single-sentence responsibility}}.
 ## Output Format
 # >> Exact shape the parent expects back, so it can aggregate across siblings.
 # >> Summarise — the parent pays context for everything returned.
-​```markdown
+```markdown
 ## {{Section}}
 {{...}}
-​```
+```
 ```
 
 ### Wiring the parent skill (body-only only)
