@@ -1,0 +1,78 @@
+version = 1
+name = "python-base"
+symlinks = []
+
+[archetype]
+qualified_name = "default"
+
+[[repo]]
+alias = "athola"
+url = "https://github.com/athola/claude-night-market"
+
+[[repo]]
+alias = "hoodini"
+url = "https://github.com/hoodini/ai-agents-skills"
+
+[[repo]]
+alias = "jasperhg90"
+url = "https://github.com/JasperHG90/skills"
+
+[[skill]]
+qualified_name = "jasperhg90/agent-creator"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[skill]]
+qualified_name = "jasperhg90/deep-explain"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[skill]]
+qualified_name = "jasperhg90/doc-write"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[skill]]
+qualified_name = "jasperhg90/manifesto"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[skill]]
+qualified_name = "jasperhg90/pageindex"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[skill]]
+qualified_name = "jasperhg90/python-review"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[skill]]
+qualified_name = "jasperhg90/readme-creator"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[skill]]
+qualified_name = "jasperhg90/release"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[skill]]
+qualified_name = "jasperhg90/terminal-gif"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[skill]]
+qualified_name = "hoodini/mermaid-diagrams"
+sha = "83e2083e3ec845e28920da5a6f333e254d8a7392"
+
+[[subagent]]
+qualified_name = "jasperhg90/adversarial-reviewer"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[subagent]]
+qualified_name = "jasperhg90/feature-planner"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[rule]]
+qualified_name = "jasperhg90/pre-existing-issues"
+sha = "801250ade7cf35f7d39764e3d4528ada7f6db6db"
+
+[[rule]]
+qualified_name = "athola/slop-scan-for-docs"
+sha = "b226e39776d69a4b16faebd78d5d2973679df198"
+
+[[mcp_server]]
+registry_name = "io.github.yohasacura/drawio-mcp"
+alias = "drawio-mcp"
