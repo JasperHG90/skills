@@ -4,8 +4,8 @@ description: >
   Creates a Claude subagent definition file (a .md agent spawned via the
   Agent/Task tool) and iteratively improves it — the way skill-creator does for
   skills, but adapted to the physics of subagents (isolated context, return
-  value is data not chat, tool allowlist as guardrail, description as delegation
-  trigger). Walks you from intent through the design dimensions, writing the
+  value is data not chat, tool allowlist as guardrail, name and description as
+  delegation trigger). Walks you from intent through the design dimensions, writing the
   file, testing it on realistic delegation prompts, and tuning its trigger. Use
   whenever the user wants to create, design, write, scaffold, draft, or improve
   a subagent / sub-agent / custom agent / agent definition, build an agent for a
@@ -110,10 +110,14 @@ intermediate work out of the parent's window**. Isolation costs something: a
 fresh context re-briefed every call, a result marshalled back, and **no ability
 to spawn its own subagents** (nesting is one level). One shape that reliably
 fails: a **multi-step pipeline** where agent A hands off to agent B hands off
-to C — every handoff pays the re-briefing tax and loses context; sequential
-stages belong inline or in a Workflow. Otherwise keep it inline, or — if it is
-a reusable *procedure* rather than a *delegatable worker* — make it a skill
-instead. Be willing to tell the user "this shouldn't be an agent" and why.
+to C with each stage's knowledge carried only in its return value — every
+handoff pays the re-briefing tax and loses whatever didn't fit the return.
+Sequential stages belong inline or in a Workflow. (Orchestrations like
+`dev-team` that persist context another way — long-lived agents, an on-disk
+artifact trail — sidestep this; the anti-pattern is relaying through return
+values alone.) Otherwise keep it inline, or — if it is a reusable *procedure*
+rather than a *delegatable worker* — make it a skill instead. Be willing to
+tell the user "this shouldn't be an agent" and why.
 
 **1. Single responsibility.** One clear job. This is what makes the agent
 triggerable and verifiable. Agents that try to do everything trigger
@@ -245,9 +249,12 @@ Repeat until the user is happy, feedback dries up, or you stop making progress.
 
 ## Step 6 — Tune the trigger (registered only)
 
-For a registered agent, whether it actually gets used comes down to its
-`description`. Don't armchair this — **spawn the near-miss prompts and observe**
-whether delegating to the agent is the right call for each, then refine.
+For a registered agent, whether it actually gets used comes down to its `name`
+and `description`. Don't armchair this — **spawn the near-miss prompts and
+observe** whether delegating to the agent is the right call for each, then
+refine. When the agent fires at the wrong moments, try **renaming** before
+rewriting the description — a vague or overly broad name poaches
+adjacent-but-wrong tasks that no amount of description sharpening fixes.
 
 - Draft ~8–12 prompts split should-delegate / should-NOT-delegate, weighted
   toward genuine near-misses (prompts that share keywords with the agent but
@@ -276,7 +283,8 @@ the parent skill's spawn logic, so this work belongs to that skill, not here.
 
 A good agent does one nameable job; assumes nothing its spawn prompt doesn't
 give it; returns a tight, contracted result the caller can use without re-deriving
-anything; cannot reach for tools its role forbids; and (registered) is described
-so the parent delegates to it for the right tasks and passes over the wrong ones.
+anything; cannot reach for tools its role forbids; and (registered) is named and
+described so the parent delegates to it for the right tasks and passes over the
+wrong ones.
 When you're unsure an agent should exist at all, say so — an honest "keep this
 inline" beats a polished agent nobody should call.

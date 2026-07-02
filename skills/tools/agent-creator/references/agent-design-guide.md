@@ -4,7 +4,7 @@ Deep treatment of the six design dimensions from `SKILL.md`, plus a gotchas
 list. Read a section when that decision gets hard. The framing throughout: a
 subagent is not a smaller chat and not a function call — it is a worker with an
 **isolated context**, a **data-shaped return value**, a **tool boundary**, and
-(if registered) a **description that is the only thing a caller reads before
+(if registered) a **name and description that are all a caller reads before
 delegating**. Every dimension below falls out of one of those facts.
 
 ## Contents
@@ -66,7 +66,11 @@ hands to agent C who implements. Each handoff pays the full re-briefing tax,
 and whatever A learned that didn't fit its return value is simply gone by the
 time C runs. Sequential stages that build on each other belong inline (one
 context accumulating knowledge) or in a Workflow script; subagents shine for
-*fan-out*, not *relay*.
+*fan-out*, not *relay*. The precise anti-pattern is relaying context through
+return values alone — orchestrations that persist context by other means
+(dev-team's long-lived agents and on-disk artifact trail, a Workflow passing
+structured results) are a different shape and can legitimately sequence
+agents.
 
 If none holds, prefer **inline** work. If the thing is really a *reusable
 procedure* a human or agent invokes ("how we do X here"), it's a **skill**, not
@@ -115,7 +119,7 @@ a checkable interface. Two failure modes this prevents:
 ## 3. Output contract
 
 The agent's final message is **consumed by the caller**, not shown to the user.
-Two consequences:
+Three consequences:
 
 1. **Define the shape.** Give the body an explicit output template (markdown
    sections, or a JSON schema when a Workflow consumes the result and validates
@@ -197,12 +201,12 @@ For a registered agent, the `name` and `description` are the *entire* basis on
 which a caller decides to delegate — and each does a different job. Treat both
 as the product surface.
 
-- **The name controls when the agent is spawned.** The caller pattern-matches
-  the task against agent names before reading anything else, so a vague or
-  overly broad name mis-fires no matter how sharp the description is. If the
-  agent triggers at the wrong moments, *renaming* is often the highest-leverage
-  fix — `code-reviewer` poaches everything review-shaped; `security-reviewer`
-  fires where you meant it to.
+- **The name steers when the agent is spawned.** In practice the name weighs
+  heavily in the caller's delegation choice — a vague or overly broad name
+  mis-fires even under a sharp description. If the agent triggers at the wrong
+  moments, *renaming* is often the highest-leverage fix — `code-reviewer`
+  poaches everything review-shaped; `security-reviewer` fires where you meant
+  it to.
 - **The description shapes the spawn prompt.** The parent doesn't just read the
   description to decide *whether* to delegate — it uses it to decide *what to
   tell* the agent. A description that names the inputs the agent expects ("give
@@ -219,9 +223,9 @@ as the product surface.
 - **Model tier** is the knob here: `haiku` for mechanical/cheap, `sonnet` for
   the default, `opus` for deep reasoning, architecture, or adversarial work.
   Match it to the hardest thing the agent must do; don't over-think it.
-- **Color** (`color:` in frontmatter) is purely cosmetic — it tints the agent's
-  output in the UI. Worth setting when several agents run side by side so the
-  user can tell whose work is whose at a glance.
+- **Color** (`color:` in frontmatter) is purely cosmetic — it colors the agent
+  in the task list and transcript UI. Worth setting when several agents run
+  side by side so the user can tell whose work is whose at a glance.
 
 A body-only agent has no description — its triggering is the parent skill's
 spawn logic. Don't try to encode a trigger in a frontmatter-less file.
