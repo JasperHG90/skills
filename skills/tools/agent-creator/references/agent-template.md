@@ -21,10 +21,12 @@ name: {{kebab-case-name}}          # >> MUST equal the filename without .md.
                                    # >> rewriting the description.
 description: >
   # >> Lead with the artifact/verb the agent produces. Then WHEN to delegate
-  # >> (phrasings a caller would actually use). Then explicit NOT-for clauses
-  # >> naming sibling agents it might be confused with. Anti-conditions carry
-  # >> equal weight to triggers. The description also shapes the spawn prompt —
-  # >> the parent briefs the agent from it — so name the inputs it expects.
+  # >> (phrasings a caller would actually use). Then NOT-for clauses — but only
+  # >> for GENUINE near-misses: tasks that share keywords/shape with this agent
+  # >> yet belong elsewhere. If no sibling could plausibly be confused with it,
+  # >> skip the clause; a boilerplate "NOT for obviously-different-thing" is
+  # >> noise. The description also shapes the spawn prompt — the parent briefs
+  # >> the agent from it — so name the inputs it expects.
   {{One-line what-it-does, leading with the verb}}. Use when {{caller phrasings
   / contexts}}. Provide it {{the inputs every spawn must include}}. NOT for:
   {{adjacent-but-wrong task}} (use {{sibling}}); {{another near-miss}}.
@@ -173,5 +175,6 @@ body-only file cannot carry a `tools:` allowlist itself.
       explicitly.
 - [ ] No "tell the user…" language — the result is data for the caller.
 - [ ] Ambiguity is flagged, never blocked on (no mid-run questions).
-- [ ] `description` (registered) leads with the artifact and has explicit
-      NOT-for clauses.
+- [ ] `description` (registered) leads with the artifact; NOT-for clauses cover
+      genuine near-misses only (none is fine when no sibling task could be
+      confused with this one).

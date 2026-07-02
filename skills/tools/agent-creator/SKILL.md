@@ -164,7 +164,9 @@ knob. The **name** steers *when* the agent gets spawned: if it fires at the
 wrong moments, renaming it is often the fix. The **description** also shapes
 *what the parent puts in the spawn prompt* — the parent briefs the agent based
 on what the description says it needs, so state expected inputs there. Cover
-*what it does* + *when to call it* + *when NOT to*. Lead with the artifact/verb.
+*what it does* + *when to call it* + *when NOT to* — the NOT-for clauses are
+for genuine near-misses (tasks that share keywords/shape but belong elsewhere);
+skip them when nothing could plausibly be confused. Lead with the artifact/verb.
 Model tier (`haiku`/`sonnet`/`opus`) is a *knob* on this dimension — match it
 to task depth (mechanical → haiku, default → sonnet, deep
 reasoning/architecture → opus), don't agonise. An optional `color` in the

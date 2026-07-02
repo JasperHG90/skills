@@ -216,10 +216,14 @@ as the product surface.
 - **Lead with the artifact/verb** so it's unmistakable ("Adversarially review
   work produced by another agent…", "Produces a high-level feature ticket…").
 - **Cover when to use** with the phrasings a user/parent would actually say.
-- **Invest in anti-conditions.** The "NOT for…" clauses carry equal weight to
-  the triggers — they're what stop the agent firing on adjacent-but-wrong tasks.
-  Name sibling agents it might be confused with and draw the line (e.g. "NOT for
-  orchestrating a multi-agent build — that's dev-team").
+- **Invest in anti-conditions — for genuine near-misses.** The "NOT for…"
+  clauses carry equal weight to the triggers — they're what stop the agent
+  firing on adjacent-but-wrong tasks. Name sibling agents it might be confused
+  with and draw the line (e.g. "NOT for orchestrating a multi-agent build —
+  that's dev-team"). But they earn their place only when the confusion is
+  plausible: a clause excluding something no caller would ever route here
+  ("NOT for planning" on a reviewer) is noise, not a guardrail. No near-miss →
+  no clause.
 - **Model tier** is the knob here: `haiku` for mechanical/cheap, `sonnet` for
   the default, `opus` for deep reasoning, architecture, or adversarial work.
   Match it to the hardest thing the agent must do; don't over-think it.
