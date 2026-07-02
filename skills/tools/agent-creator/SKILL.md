@@ -39,8 +39,10 @@ agents. So lead with the physics. The one paragraph to hold in your head:
 > body** (written once, reused every run) and the **spawn prompt** the parent
 > writes at call time. Its final message is **not shown to the user** — it is
 > *data returned to the caller*. Its **tool allowlist** is a hard boundary. And
-> for a *registered* agent, its **description is the only thing the parent reads
-> when deciding whether to delegate**. Design each of these deliberately.
+> for a *registered* agent, its **name and description are the only things the
+> parent reads when deciding whether to delegate** — and the description also
+> shapes what the parent writes into the spawn prompt. Design each of these
+> deliberately.
 
 ## Where you are in the process
 
@@ -97,14 +99,21 @@ Then run the gate in Step 2 before writing anything.
 These are the load-bearing decisions. For depth, examples, and gotchas, read
 `references/agent-design-guide.md` — pull it in when a dimension gets tricky.
 
-**0. Should this agent exist at all?** A real gate, not a formality. Isolation
-costs something: a fresh context that must be re-briefed every call, a result
-that has to be marshalled back, and **no ability to spawn its own subagents**
-(nesting is one level). Prefer an agent when the work is *independently
-scoped*, *parallelizable*, or *context-heavy enough that you want it off the
-parent's window*. Otherwise keep it inline, or — if it is a reusable *procedure*
-rather than a *delegatable worker* — make it a skill instead. Be willing to tell
-the user "this shouldn't be an agent" and why.
+**0. Should this agent exist at all?** A real gate, not a formality. The golden
+rule: **does the intermediate work matter to the parent?** If the parent only
+needs the conclusion — a verdict, a summary, a found location — an agent is
+great; if the parent needs to see *how* the work unfolded, keep it inline.
+Beyond that, an agent earns its isolation cost only by doing something the main
+thread *cannot*: carrying a **different system prompt** (a distinct tone or
+stance — an adversarial reviewer is the canonical case) or **keeping noisy
+intermediate work out of the parent's window**. Isolation costs something: a
+fresh context re-briefed every call, a result marshalled back, and **no ability
+to spawn its own subagents** (nesting is one level). One shape that reliably
+fails: a **multi-step pipeline** where agent A hands off to agent B hands off
+to C — every handoff pays the re-briefing tax and loses context; sequential
+stages belong inline or in a Workflow. Otherwise keep it inline, or — if it is
+a reusable *procedure* rather than a *delegatable worker* — make it a skill
+instead. Be willing to tell the user "this shouldn't be an agent" and why.
 
 **1. Single responsibility.** One clear job. This is what makes the agent
 triggerable and verifiable. Agents that try to do everything trigger
@@ -122,10 +131,15 @@ classic failure; so is a body that re-hardcodes what should be injected.
 
 **3. Output contract.** The return value is **data for the caller, not a chat
 message to the user** — the user never sees it directly. Define an explicit
-shape (a markdown template, or a JSON schema if a Workflow consumes it).
-**Summarise, don't dump**: the caller pays context for whatever the agent
-returns, so a 50-line structured verdict beats a 500-line transcript. State this
-in the body.
+shape in the body — agents reliably struggle to wrap up once their research is
+done, and a concrete template is what saves them. For research/review agents
+the proven default is: **Summary, Critical issues, Major issues,
+Recommendations, Obstacles encountered**. The obstacles section matters more
+than it looks: the agent must report what it *couldn't* do (missing files,
+denied tools, dead ends) so the main thread doesn't burn its own turns
+re-discovering them. **Summarise, don't dump**: the caller pays context for
+whatever the agent returns, so a 50-line structured verdict beats a 500-line
+transcript. State this in the body.
 
 **4. Tool allowlist as guardrail.** Least privilege, and it *enforces the
 contract*: a review/research agent omits `Edit`/`Write` by design so it
@@ -140,12 +154,19 @@ mid-run** — design it to make the reasonable call and *flag* the ambiguity in
 its output, not block. And remember the **one-level nesting ceiling**: it cannot
 spawn its own subagents.
 
-**6. Trigger — registered flavor only.** The `description` is the parent's only
-input when deciding to delegate. Cover *what it does* + *when to call it* +
-*when NOT to*. Lead with the artifact/verb. Model tier (`haiku`/`sonnet`/`opus`)
-is a *knob* on this dimension — match it to task depth (mechanical → haiku,
-default → sonnet, deep reasoning/architecture → opus), don't agonise. For a
-body-only agent, skip this — the parent skill owns triggering.
+**6. Trigger — registered flavor only.** The `name` and `description` together
+are what the parent reads when deciding to delegate — and each is a distinct
+knob. The **name** steers *when* the agent gets spawned: if it fires at the
+wrong moments, renaming it is often the fix. The **description** also shapes
+*what the parent puts in the spawn prompt* — the parent briefs the agent based
+on what the description says it needs, so state expected inputs there. Cover
+*what it does* + *when to call it* + *when NOT to*. Lead with the artifact/verb.
+Model tier (`haiku`/`sonnet`/`opus`) is a *knob* on this dimension — match it
+to task depth (mechanical → haiku, default → sonnet, deep
+reasoning/architecture → opus), don't agonise. An optional `color` in the
+frontmatter distinguishes the agent visually in the UI — cheap and worth
+setting when several agents run side by side. For a body-only agent, skip
+this — the parent skill owns triggering.
 
 ## Step 3 — Write the agent file
 

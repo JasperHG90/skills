@@ -14,19 +14,26 @@ Saved as `agents/{{name}}.md` (repo) or `~/.claude/agents/{{name}}.md`.
 
 ```markdown
 ---
-name: {{kebab-case-name}}          # >> MUST equal the filename without .md
+name: {{kebab-case-name}}          # >> MUST equal the filename without .md.
+                                   # >> The name steers when the agent is spawned —
+                                   # >> callers pattern-match tasks against it before
+                                   # >> reading the description. Mis-firing agent?
+                                   # >> Rename before rewriting.
 description: >
   # >> Lead with the artifact/verb the agent produces. Then WHEN to delegate
   # >> (phrasings a caller would actually use). Then explicit NOT-for clauses
   # >> naming sibling agents it might be confused with. Anti-conditions carry
-  # >> equal weight to triggers.
+  # >> equal weight to triggers. The description also shapes the spawn prompt —
+  # >> the parent briefs the agent from it — so name the inputs it expects.
   {{One-line what-it-does, leading with the verb}}. Use when {{caller phrasings
-  / contexts}}. NOT for: {{adjacent-but-wrong task}} (use {{sibling}});
-  {{another near-miss}}.
+  / contexts}}. Provide it {{the inputs every spawn must include}}. NOT for:
+  {{adjacent-but-wrong task}} (use {{sibling}}); {{another near-miss}}.
 tools: {{Read, Grep, Glob, ...}}   # >> Least privilege. List explicitly — omitting
                                    # >> this inherits ALL tools (silent over-grant).
                                    # >> Read-only agents omit Edit/Write by design.
 model: {{haiku | sonnet | opus}}   # >> Match the hardest thing it must do.
+color: {{blue | green | ...}}      # >> Optional, cosmetic — tints this agent's output
+                                   # >> in the UI so parallel agents are tellable apart.
 ---
 
 # {{Agent Name}}
@@ -63,13 +70,28 @@ what good looks like, the spirit of the job.}}
 
 ## Output
 # >> The return value is DATA FOR THE CALLER, not a user message. Give an exact
-# >> template (or a JSON schema if a Workflow consumes it). Tell it to summarise,
-# >> not dump its working notes.
+# >> template (or a JSON schema if a Workflow consumes it) — agents struggle to
+# >> wrap up once the work is done, and this template is what lands the ending.
+# >> Tell it to summarise, not dump its working notes. For research/review
+# >> agents, the default section set is: Summary, Critical issues, Major
+# >> issues, Recommendations, Obstacles encountered. Keep "Obstacles
+# >> encountered" whatever the shape — the parent must not have to re-discover
+# >> what this agent already ran into.
 Return exactly this structure:
 
 ```markdown
-## {{Section}}
-{{what goes here}}
+## Summary
+{{the two-sentence answer}}
+
+## {{Critical issues / main findings}}
+{{must-know findings, each with evidence (path:line)}}
+
+## Recommendations
+{{what the caller should do next}}
+
+## Obstacles encountered
+{{what you could NOT do — missing files, denied tools, dead ends, assumptions
+you had to make. Write "none" rather than omitting the section.}}
 
 ## Open questions
 {{ambiguities you flagged instead of guessing}}
@@ -108,10 +130,15 @@ You {{single-sentence responsibility}}.
 
 ## Output Format
 # >> Exact shape the parent expects back, so it can aggregate across siblings.
-# >> Summarise — the parent pays context for everything returned.
+# >> Summarise — the parent pays context for everything returned. Include an
+# >> "Obstacles encountered" section here too, so the parent aggregating N
+# >> siblings can see which ones hit walls.
 ```markdown
 ## {{Section}}
 {{...}}
+
+## Obstacles encountered
+{{what you could not do; "none" if clean}}
 ```
 ```
 
@@ -141,6 +168,8 @@ body-only file cannot carry a `tools:` allowlist itself.
 - [ ] Single responsibility — the role sentence has no "and".
 - [ ] Inputs-at-spawn section lists everything the body assumes.
 - [ ] Output section gives an exact shape and says "summarise, don't dump".
+- [ ] Output shape includes an "Obstacles encountered" section — the caller
+      must not have to re-discover what the agent already ran into.
 - [ ] `tools` (registered) is the narrowest set that does the job, listed
       explicitly.
 - [ ] No "tell the user…" language — the result is data for the caller.
