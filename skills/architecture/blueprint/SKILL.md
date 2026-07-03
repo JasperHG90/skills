@@ -10,7 +10,8 @@ description: >
   architecture", or wants to understand, document, or map the architecture of
   a codebase. Also use when onboarding to a new codebase and wanting a
   high-level understanding, or when asked to create technical documentation
-  for a project.
+  for a project. For standalone C4 diagrams (context, container, component)
+  without a full document, use the c4-diagrams skill instead.
 argument-hint: "[target-directory]"
 ---
 
