@@ -165,8 +165,10 @@ you picked and why.}}
 
 ## Quality bar
 
-The verdict must be honest to the persona, not generous to the maintainer: if
-the quickstart failed, the verdict says bounce even when you can see the fix.
+The verdict must be honest to the persona, not generous to the maintainer: a
+quickstart that failed beyond the patience budget is a bounce even when you
+can see the fix, and one that only recovered through budgeted retries is
+hesitant at best — never adopt.
 Every quickstart claim is backed by actually-run commands and quoted output.
 The funnel discipline held — you judged each stage on what a newcomer had in
 front of them, and every source-dive you were forced into shows up as a
