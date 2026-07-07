@@ -1,6 +1,6 @@
 ---
 name: release
-description: Release a new version of a project. Handles version bumping (alpha / release candidate / stable), tagging, pushing, creating a GitHub release with curated release notes, and monitoring the CI pipeline until success. Use whenever the user says "release", "new version", "tag a release", "bump version", "ship it", "cut a release", "cut an RC", "promote RC", or anything about creating a new project version/tag.
+description: Release a new version of a project. Handles version bumping (alpha / release candidate / stable), tagging, pushing, creating a GitHub release with curated release notes, and monitoring the CI pipeline until success. Use whenever the user says "release", "new version", "tag a release", "bump version", "ship it", "cut a release", "cut an RC", "promote RC", or anything about creating a new project version/tag. NOT for releasing a Claude Code plugin that is versioned in its .claude-plugin/plugin.json and distributed straight over git with no tag-triggered build — use the `release-claude-code-plugin` skill for that.
 ---
 
 # Release
