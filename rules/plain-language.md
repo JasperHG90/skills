@@ -57,7 +57,3 @@ less left to decode your code. Plain language also keeps the work honest:
 when you cannot explain a concept in one sentence, you usually have not
 understood the design yet.
 </constraint>
-
-For the markdown-slop detection checklist that runs on generated docs, see
-`.claude/rules/slop-scan-for-docs.md`. This rule is the standing mandate;
-that one is the scanner.

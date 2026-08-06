@@ -31,9 +31,9 @@ This command will:
 | `make help` | Show all available commands |
 | `make venv` | Set up a virtual environment |
 | `make install` | Install Python dependencies |
-| `make pre_commit_setup` | Install pre-commit hooks |
-| `make setup` | Run venv, install, and pre_commit_setup |
-| `make pre_commit` | Run pre-commit checks manually |
+| `make pre-commit-setup` | Install pre-commit hooks |
+| `make setup` | Run venv, install, and pre-commit-setup |
+| `make pre-commit` | Run pre-commit checks manually |
 
 ## Skill Requirements
 
@@ -172,7 +172,7 @@ Skills follow the [agentskills.io](https://agentskills.io) specification. Ensure
 Before pushing changes, always run the pre-commit checks:
 
 ```bash
-make pre_commit
+make pre-commit
 ```
 
 This will run all linting, formatting, and validation checks.
@@ -200,7 +200,7 @@ Add your `SKILL.md` and any supporting files.
 ### 3. Run Pre-Commit Checks
 
 ```bash
-make pre_commit
+make pre-commit
 ```
 
 Fix any issues that are reported.
