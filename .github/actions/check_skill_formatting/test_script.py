@@ -124,5 +124,5 @@ async def test_main_success(valid_skill_dir, valid_frontmatter):
 @pytest.mark.asyncio
 async def test_main_failure(valid_skill_dir):
     # No SKILL.md
-    with pytest.raises(script.SkillValidationError, match="Could not validate skill"):
+    with pytest.raises(script.SkillValidationError, match="Failed to validate"):
         await script.main([valid_skill_dir])

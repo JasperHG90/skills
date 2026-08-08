@@ -11,7 +11,7 @@ description: >
   constraint / guardrail / coding convention / standing instruction / always-on
   guidance / .claude/rules entry, or turn a repeated correction ("stop doing X",
   "always do Y") into a permanent rule. NOT for: authoring a reusable multi-step
-  procedure (use skill-creator); a delegatable subagent (use agent-creator);
+  procedure (use skill-creator); a subagent (use agent-creator);
   editing settings.json, hooks, or permissions (use update-config); or recording
   project-specific facts like build commands and directory layout (those belong
   in CLAUDE.md / AGENTS.md, not a rule).
