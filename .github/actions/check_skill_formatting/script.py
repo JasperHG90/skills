@@ -1,10 +1,11 @@
 import asyncio
-from typing import Annotated
+from typing import Annotated, Any
 import pathlib as plb
 
 import aiofiles
 import typer
 import rich
+import yaml
 from jsonschema import validate
 
 
@@ -83,26 +84,25 @@ async def _get_skill_content(skill_md_file: plb.Path) -> str:
     return content
 
 
-def _parse_frontmatter_simple(skill_md_content: str) -> dict[str, str]:
+def _parse_frontmatter_simple(skill_md_content: str) -> dict[str, Any]:
     if not skill_md_content.startswith("---"):
         raise ValueError(
             "SKILL.md file must start with YAML frontmatter metadata. See <https://agentskills.io/specification>."
         )
-    fm_parsed = {}
     content_split = skill_md_content.split("---", 2)[1]
-    frontmatter_raw = content_split.strip().split("\n")
-    for field_and_value in frontmatter_raw:
-        if field_and_value == "":
-            continue
-        try:
-            key, value = field_and_value.strip().split(":", 1)
-            fm_parsed[key.strip()] = value.strip()
-        except ValueError as e:
-            raise SkillFormattingError(
-                "Skill frontmatter is not formatted correctly. "
-                "Expecting format 'key: value' (e.g. 'name: myskill'), "
-                f"got '{field_and_value.strip()}'"
-            ) from e
+    try:
+        fm_parsed = yaml.safe_load(content_split)
+    except yaml.YAMLError as e:
+        raise SkillFormattingError(
+            f"Skill frontmatter is not valid YAML. Expecting format 'key: value' "
+            f"(e.g. 'name: myskill'). Parser said: {e}"
+        ) from e
+    if not isinstance(fm_parsed, dict):
+        raise SkillFormattingError(
+            "Skill frontmatter is not formatted correctly. "
+            "Expecting format 'key: value' (e.g. 'name: myskill'), "
+            f"got '{content_split.strip()}'"
+        )
     return fm_parsed
 
 

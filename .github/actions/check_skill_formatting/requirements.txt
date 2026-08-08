@@ -2,3 +2,4 @@ jsonschema
 typer
 aiofiles
 rich
+pyyaml
