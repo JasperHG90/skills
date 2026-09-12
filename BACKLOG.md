@@ -148,11 +148,12 @@ Closed on GitHub with a comment; listed here so the decision is traceable.
 The second bot run left 100 open issues (#30–#133; #37 and #91–#93 were
 already closed). Every open issue was re-read and mapped onto this repo's
 real artifacts (the 9 skills, `AGENTS.md`, `rules/`, `templates/`, repo
-conventions). Result:
+conventions). Three late June issues (#27–#29) missed the run-1 window and
+were incorporated in run 2 as well. Result:
 
 | Outcome | Count | Where |
 |---|---|---|
-| Incorporated into new tickets | 40 | T4–T7 below |
+| Incorporated into new tickets | 43 | T4–T7 below |
 | Actioned by the triage itself | 2 | #131, #132 |
 | Closed won't-do / duplicate / out-of-scope | 58 | tables below |
 
@@ -163,11 +164,14 @@ track them.
 ### T4 — AGENTS.md authoring-guide additions
 
 **Type:** incorporate (docs — `AGENTS.md`)
-**Consolidated GitHub issues:** #31, #39, #41, #50, #79, #90, #95, #117, #118, #120, #122
+**Consolidated GitHub issues:** #27, #28, #29, #31, #39, #41, #50, #79, #90, #95, #117, #118, #120, #122
 
 Additions to the body-content guidelines (all within the agentskills.io spec —
 guidance, not frontmatter):
 
+- **VHS demo-tape conventions** (#27, #28, #29): avoid blobless partial clones
+  in git-heavy skills; standardise browser-rendered GIF demos (VHS pattern)
+  with Wait+Screen timing for piped output.
 - **Subagent vs skill convention** (#31): document when to author a skill vs
   define an agent, plus the **cite-or-flag evidence discipline** — claims in
   skill instructions must cite a source file/reference or be flagged
@@ -208,7 +212,7 @@ guidance, not frontmatter):
   are Sacred vs Adaptable per phase.
 - **Single-agent baseline** (#65): Phase 0 must justify any escalation to
   multi-agent.
-- **Earned autonomy** (#66): grade task permissions by demonstrated
+- **Earned autonomy** (#66): grade task permissions on demonstrated
   reliability across runs.
 - **"When agentic is the wrong fit"** (#68): six-case decision tree as a
   Phase 0 gate.
@@ -283,8 +287,7 @@ guidance, not frontmatter):
 
 Closed on GitHub with a comment; listed so the decision is traceable.
 
-**Hermes-ecosystem (8)** — presuppose Hermes infrastructure absent from this
-repo:
+**Hermes-ecosystem (8)** — presuppose Hermes infrastructure absent from this repo:
 
 | # | Title (short) | Reason |
 |---|---|---|
@@ -297,8 +300,7 @@ repo:
 | 115 | LLM surrogate evaluation | Eval-harness infra. |
 | 119 | expert-curation metadata | Non-spec metadata plus curation infra. |
 
-**Conversation-scratch (13)** — philosophy/style items from specific
-conversations, or overlapping an implemented/rejected pattern:
+**Conversation-scratch (13)** — philosophy/style items from specific conversations, or overlapping an implemented/rejected pattern:
 
 | # | Title (short) | Reason |
 |---|---|---|
@@ -331,8 +333,7 @@ conversations, or overlapping an implemented/rejected pattern:
 | 58 | reconsolidation-upon-retrieval | Memory-aware skills don't exist here. |
 | 61 | CI/CD-gated promotion | T7 #109; CI out of scope. |
 
-**Out-of-scope (27)** — target missing skills or infrastructure, or propose
-non-spec frontmatter (same classes as June's table):
+**Out-of-scope (27)** — target missing skills or infrastructure, or propose non-spec frontmatter (same classes as June's table):
 
 | # | Title (short) | Reason |
 |---|---|---|
