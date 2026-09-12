@@ -94,3 +94,9 @@ skills-ref validate ./skill-name
 ## Further reading
 
 For deeper guidance on writing trigger-friendly `description` fields, the three-tier progressive-disclosure model, and an eval/benchmark harness for measuring and iterating on a skill, see Anthropic's [`skill-creator`](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md). The conventions above are the house rules for this repo; `skill-creator` is the canonical reference for the mechanics it covers.
+
+## Triage & backlog
+
+Open patterns from the `insight-linker` bot are triaged into [`BACKLOG.md`](BACKLOG.md). Read `BACKLOG.md` before proposing new conventions here so an existing ticket isn't duplicated, and file new bot findings as issues for the next triage run rather than editing this file directly.
+
+When editing this file or any skill, draft the per-change context first: which ticket or issue drives the change, which files it touches, and what the end state looks like. Unplanned growth of this file is a smell (see `BACKLOG.md`, T7 — AGENTS.md as diagnostic, not permanent config).
