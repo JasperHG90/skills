@@ -1,5 +1,5 @@
 ---
-name: Python Testing Rules
+name: python-testing
 description: How to write, run, and locate tests in Python projects (pytest + uv). Read before adding or changing Python code.
 paths: ["**/*.py"]
 ---

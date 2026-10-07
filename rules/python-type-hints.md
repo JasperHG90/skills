@@ -1,5 +1,5 @@
 ---
-name: Python Type Hints
+name: python-type-hints
 description: Mandates type annotations on Python code (mypy-checked, modern syntax) and shows how to type common shapes. Read before adding or changing Python code.
 paths: ["**/*.py"]
 ---

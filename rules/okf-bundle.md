@@ -1,4 +1,6 @@
 ---
+name: okf-bundle
+description: How to read, add to, and maintain the .okf/ knowledge bundle. Read before reading or editing anything under .okf/.
 paths: [".okf/**"]
 ---
 

@@ -1,4 +1,6 @@
 ---
+name: docs-layout
+description: What belongs in docs/ (for people using the project) versus .okf/ (for agents and people working on it). Read before writing or moving prose under docs/, .okf/, or the README.
 paths: ["docs/**", ".okf/**", "README.md"]
 ---
 
