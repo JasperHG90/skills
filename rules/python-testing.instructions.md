@@ -19,17 +19,67 @@ invocation.
 
 | Goal | Command |
 |------|---------|
-| Full suite | `uv run pytest` |
+| Full default suite | `uv run pytest` |
 | One directory | `uv run pytest tests/<area> -q` |
 | One test | `uv run pytest tests/<area>/test_x.py::test_name` |
-| Marked tests (off by default) | `uv run pytest -m integration` |
+
+## Test tiers: don't wait on slow tests every round
+
+Rerunning the whole suite after each edit spends most of the wait on tests
+the edit cannot have broken. Split tests into tiers by cost with markers,
+and run each tier at the stage that needs it.
 
 <constraint name="mark-and-exclude-slow-tests">
-Tests that hit real external systems (network, databases, paid or
-credentialed model APIs) must carry a marker (for example `integration`,
-`llm`) and be excluded from the default run via `addopts` in
-pyproject.toml. The default `uv run pytest` stays fast and offline. Run the
-marked tests on purpose with `-m`.
+A test that is expensive to run carries a marker that says what it costs,
+and `addopts` in pyproject.toml leaves it out of the default run, so the
+default `uv run pytest` stays fast and offline:
+
+- `slow`: a local test that takes over about a second.
+- `integration`: real external systems (network, databases, real tools).
+- `llm`: paid or credentialed model APIs.
+
+A topic marker (`api`, `db`) does not say whether a test is cheap to run,
+so do not use one to pick tiers. Register every marker under `markers =`
+and turn on `--strict-markers`, so a typo cannot slip a slow test back
+into the default run.
+</constraint>
+
+<constraint name="measure-before-marking">
+Find slow tests with `uv run pytest --durations=25` and mark the ones over
+the threshold. Do not mark a test `slow` on a guess, and remove the marker
+when a test gets fast again.
+</constraint>
+
+Use the project's task-runner recipe for a stage when it has one.
+
+| Stage | Run |
+|-------|-----|
+| Each edit round | The tests nearest the change: `uv run pytest tests/<area> -x` |
+| Fixing a failure | Only what failed last time: `uv run pytest --lf -x` |
+| Before calling work done | The full default suite once, then each tier your change touches: `uv run pytest -m slow`, `-m integration` |
+
+<constraint name="run-your-own-test">
+A marker deselects a test even when you name it by path, so the test for
+your change can silently not run. If it carries a tier marker, run it with
+that marker: `uv run pytest tests/<area>/test_x.py::test_name -m slow`. A
+`deselected` count in the summary means some tests did not run.
+</constraint>
+
+Things that trip people up:
+
+- A `-m` on the command line replaces the `-m` in `addopts`; it does not
+  add to it. `uv run pytest -m slow` runs only the slow tests. `-m ""`
+  clears the filter and runs every tier; to run some tiers, write the
+  whole expression, for example `-m "not llm"`.
+- `--lf` with no cache, or after a run that passed, runs the full default
+  selection.
+- If `addopts` has `-n auto` (pytest-xdist), add `-n0` when running a few
+  tests: starting the workers costs more than the tests.
+
+<constraint name="every-tier-runs-somewhere">
+A tier left out of the default run must still run before merge, usually in
+CI. Say where it runs in the marker's description in pyproject.toml (for
+example "off by default, CI runs it"). A tier that runs nowhere rots unseen.
 </constraint>
 
 <constraint name="tests-are-real-code">
