@@ -29,13 +29,13 @@ Given an intent like *"add a rule that every change ships with a test"* or
 
 | Location | What it is | When to use |
 |---|---|---|
-| `.apm/instructions/` (this repo) | A shared, version-controlled library of rules | Default — shareable and reviewable; install into `.claude/rules/` with apm when adopted |
+| `rules/` (this repo) | A shared, version-controlled library of rules | Default — shareable and reviewable; install into `.claude/rules/` with apm when adopted |
 | `.claude/rules/` (a project) | Rules Claude Code loads for that project now | When you want the rule active immediately in the current project |
 | `~/.claude/rules/` (global) | Personal rules across all your projects | Personal standing preferences (not written by this skill by default) |
 
 `.claude/rules/*.md` is injected by Claude Code directly — the **body** is what
-the agent reads, so all load-bearing guidance goes there. `.apm/instructions/`
-is a catalog; nothing auto-loads it.
+the agent reads, so all load-bearing guidance goes there. The top-level `rules/`
+directory is a catalog; nothing auto-loads it.
 
 ## Rule frontmatter
 
@@ -66,9 +66,9 @@ Invoke the skill and describe the behavior you want to standardize:
 The skill will confirm it's rule-shaped, ask whether it's Python-scoped and
 enforce-hard vs a nudge, check for an existing rule that already covers it, then
 write and self-review the file. See existing rules for the two body shapes it
-proposes between: `.apm/instructions/uv-installer.instructions.md` (a single
-directive) and `.apm/instructions/python-testing.instructions.md` (a hard core
-marked with `<constraint>` blocks amid explanatory prose).
+proposes between: `rules/uv-installer.instructions.md` (a single directive) and
+`rules/python-testing.instructions.md` (a hard core marked with `<constraint>`
+blocks amid explanatory prose).
 
 ## Prerequisites
 
