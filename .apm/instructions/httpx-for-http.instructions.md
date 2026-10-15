@@ -1,7 +1,7 @@
 ---
 name: httpx-for-http
 description: Make HTTP calls with httpx rather than urllib or requests, on a reused client with an explicit timeout and jittered retries. Read before writing code that talks to an HTTP API.
-paths: ["**/*.py"]
+applyTo: "**/*.py"
 ---
 
 <constraint name="one-client-explicit-timeout">
