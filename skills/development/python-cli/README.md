@@ -67,9 +67,9 @@ fails in a clean install, and the lazy-group code subclasses
 
 - [`../python-review`](../python-review/README.md) — reviewing the code once it
   exists.
-- [`interface-audience`](../../../rules/interface-audience.md) — the general
-  principle behind Step 1, applied beyond CLIs to APIs, libraries, and agent
-  tools.
+- [`interface-audience`](../../../rules/interface-audience.instructions.md) —
+  the general principle behind Step 1, applied beyond CLIs to APIs, libraries,
+  and agent tools.
 
 ## Validating
 

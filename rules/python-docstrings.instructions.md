@@ -1,7 +1,7 @@
 ---
 name: python-docstrings
 description: How to write and keep up-to-date docstrings in Python code (numpy convention). Read before adding or changing Python code.
-paths: ["**/*.py"]
+applyTo: "**/*.py"
 ---
 
 <constraint name="python-objects-need-docstrings">
