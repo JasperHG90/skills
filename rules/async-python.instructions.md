@@ -28,16 +28,16 @@ bound is a named constant so it can be read and tuned.
 <example name="bounded-fetch">
 ```python
 import asyncio
-import httpx
+import httpx2
 
 MAX_CONCURRENT_REQUESTS = 10
 
-async def fetch_all(urls: list[str]) -> list[httpx.Response]:
+async def fetch_all(urls: list[str]) -> list[httpx2.Response]:
     """Fetch every URL, at most ``MAX_CONCURRENT_REQUESTS`` in flight."""
     limit = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
 
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        async def fetch(url: str) -> httpx.Response:
+    async with httpx2.AsyncClient(timeout=10.0) as client:
+        async def fetch(url: str) -> httpx2.Response:
             async with limit:
                 return await client.get(url)
 
@@ -52,8 +52,8 @@ task fails. Reach for `gather(..., return_exceptions=True)` instead when partial
 results are the point and you want to report failures per item.
 </example>
 
-Know what your bound is actually for. `httpx.AsyncClient` already caps its pool
-at 100 connections (`httpx.Limits(max_connections=...)` moves it), so here the
+Know what your bound is actually for. `httpx2.AsyncClient` already caps its pool
+at 100 connections (`httpx2.Limits(max_connections=...)` moves it), so here the
 semaphore paces you against the remote rather than saving local file
 descriptors. Where nothing pools for you — `asyncio.open_connection`, subprocess
 fan-out, `to_thread` — the semaphore is the only bound there is.
