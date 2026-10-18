@@ -6,6 +6,20 @@ repos:
         entry: python scripts/strip_invisible_unicode.py
         language: python
         types: [text]
+      # apm installs a single file only by its suffix, so a rule or agent
+      # named otherwise cannot be installed from apm.yml.
+      - id: rules-end-in-instructions-md
+        name: rules end in .instructions.md
+        entry: "apm installs a rule only as rules/<name>.instructions.md; rename"
+        language: fail
+        files: ^rules/
+        exclude: \.instructions\.md$
+      - id: agents-end-in-agent-md
+        name: agents end in .agent.md
+        entry: "apm installs an agent only as agents/<name>.agent.md; rename"
+        language: fail
+        files: ^agents/
+        exclude: \.agent\.md$
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
