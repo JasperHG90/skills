@@ -65,10 +65,10 @@ down which one before anything else.
 | | **Registered subagent** | **Skill-bundled (body-only)** |
 |---|---|---|
 | File | full YAML frontmatter + body | body only, **no frontmatter** |
-| Lives in | a project `agents/` dir or `~/.claude/agents/` | `<skill>/agents/foo.md` |
+| Lives in | a project `agents/` dir (`<name>.agent.md`) or `~/.claude/agents/` | `<skill>/agents/foo.md` |
 | Triggered by | its own `description` (parent's Agent tool reads it) | the **parent skill's spawn block** — the agent file has no say |
 | Tools restricted by | its `tools:` allowlist | whatever the parent grants at spawn |
-| Examples in this repo | `agents/feature-planner.md`, `agents/adversarial-reviewer.md` | `skills/architecture/blueprint/agents/*.md` |
+| Examples in this repo | `agents/feature-planner.agent.md`, `agents/adversarial-reviewer.agent.md` | `skills/architecture/blueprint/agents/*.md` |
 
 This split routes the rest of the work: **dimensions 3–5 below apply to both**;
 **dimensions 6 (trigger) and the `tools`/`model` frontmatter apply only to the
@@ -183,13 +183,14 @@ constraint matters rather than stacking bare `MUST`s (smart models follow
 reasons better than rules).
 
 Save location:
-- **Registered** → default to the repo's top-level `agents/<name>.md` (matching
-  `feature-planner.md` / `adversarial-reviewer.md`). Offer `~/.claude/agents/`
-  for a personal/global agent.
+- **Registered** → default to the repo's top-level `agents/<name>.agent.md`
+  (matching `feature-planner.agent.md` / `adversarial-reviewer.agent.md`); apm
+  installs a single file only by its `.agent.md` suffix. Offer
+  `~/.claude/agents/<name>.md` for a personal/global agent.
 - **Body-only** → `<parent-skill>/agents/<name>.md`, and update the parent
   skill's spawn block to read and dispatch it.
 
-Verify `name` matches the filename, frontmatter is valid, and (registered) the
+Verify `name` matches the filename without `.agent.md`, frontmatter is valid, and (registered) the
 `tools` list contains exactly what the method needs.
 
 ## Step 4 — Test it

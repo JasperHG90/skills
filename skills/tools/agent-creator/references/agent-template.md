@@ -3,18 +3,20 @@
 Two templates — one per flavor. Copy the matching one, then replace the
 `{{...}}` placeholders. The `# >>` lines are guidance: **delete them** in the
 finished file. Both are modeled on real agents in this repo
-(`agents/feature-planner.md`, `agents/adversarial-reviewer.md`,
+(`agents/feature-planner.agent.md`, `agents/adversarial-reviewer.agent.md`,
 `skills/architecture/blueprint/agents/pattern-analyst.md`).
 
 ---
 
 ## A. Registered subagent (full frontmatter)
 
-Saved as `agents/{{name}}.md` (repo) or `~/.claude/agents/{{name}}.md`.
+Saved as `agents/{{name}}.agent.md` (repo; apm installs a single file by its
+`.agent.md` suffix and writes it as `.claude/agents/{{name}}.md`) or
+`~/.claude/agents/{{name}}.md`.
 
 ```markdown
 ---
-name: {{kebab-case-name}}          # >> MUST equal the filename without .md.
+name: {{kebab-case-name}}          # >> MUST equal the filename without .agent.md (or .md).
                                    # >> The name steers when the agent is spawned —
                                    # >> it weighs heavily in the caller's delegation
                                    # >> choice. Mis-firing agent? Try renaming before
@@ -165,7 +167,7 @@ body-only file cannot carry a `tools:` allowlist itself.
 
 ## Checklist before you ship the file
 
-- [ ] `name` (registered) equals the filename; body-only has **no** frontmatter.
+- [ ] `name` (registered) equals the filename without `.agent.md`; body-only has **no** frontmatter.
 - [ ] Single responsibility — the role sentence has no "and".
 - [ ] Inputs-at-spawn section lists everything the body assumes.
 - [ ] Output section gives an exact shape and says "summarise, don't dump".
