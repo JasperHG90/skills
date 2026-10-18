@@ -132,6 +132,8 @@ All code in this repository must pass the following automated checks. These run 
 | `detect-private-key` | Detects private keys in code |
 | `debug-statements` | Detects debug statements (e.g., `print()`, `pdb`) |
 | `end-of-file-fixer` | Ensures files end with newline |
+| `rules-end-in-instructions-md` | Every file in `rules/` is named `<name>.instructions.md`, so apm can install it |
+| `agents-end-in-agent-md` | Every file in `agents/` is named `<name>.agent.md`, so apm can install it |
 
 ### Skill-Specific Checks
 
