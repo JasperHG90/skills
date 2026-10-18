@@ -137,9 +137,7 @@ Over-mocking yields tests that pass while production breaks.
 - Database: point the app at a real, throwaway database under `tmp_path`
   (for example a temp SQLite file) rather than mocking the data layer.
 - HTTP: mock with the library's community-standard tool, not hand-rolled
-  patches and not live requests. For `httpx2`, use `httpx2.MockTransport`:
-  respx still depends on `httpx` and rejects `httpx2.Response`, so it cannot
-  mock the fork.
+  patches and not live requests. For `httpx`, use respx.
 
 <constraint name="check-mocking-capabilities">
 Before adding any external mocking library, check whether the dependency

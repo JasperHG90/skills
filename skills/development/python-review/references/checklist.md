@@ -115,7 +115,7 @@ This is a reference document — don't dump the entire thing into a review. Pick
 
 ### What to look for
 
-- **Blocking calls inside async functions.** `time.sleep()`, synchronous file I/O, synchronous HTTP calls, and CPU-heavy computation in async code will block the event loop. Use `asyncio.sleep()`, `aiofiles`, `httpx2`, and `asyncio.to_thread()` respectively.
+- **Blocking calls inside async functions.** `time.sleep()`, synchronous file I/O, synchronous HTTP calls, and CPU-heavy computation in async code will block the event loop. Use `asyncio.sleep()`, `aiofiles`, `httpx`, and `asyncio.to_thread()` respectively.
 
 - **Missing `await` on coroutines.** A coroutine that isn't awaited never executes. Python 3.12+ warns about this, but it's still a common bug.
 
