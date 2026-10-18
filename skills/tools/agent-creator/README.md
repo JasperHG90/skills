@@ -20,7 +20,7 @@ build (use `dev-team`), a throwaway one-off Agent prompt, or a Workflow script.
 | | **Registered subagent** | **Skill-bundled (body-only)** |
 |---|---|---|
 | File | full YAML frontmatter + body | body only, no frontmatter |
-| Lives in | `agents/` or `~/.claude/agents/` | `<skill>/agents/foo.md` |
+| Lives in | `agents/<name>.agent.md` or `~/.claude/agents/` | `<skill>/agents/foo.md` |
 | Triggered by | its own `description` | the parent skill's spawn block |
 | Tools limited by | its `tools:` allowlist | whatever the parent grants |
 
