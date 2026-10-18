@@ -14,7 +14,7 @@ config parser that ignores a typo'd key.
 | Hand-rolled subsystem | Use |
 |---|---|
 | dict-shaped parsing and validation | `pydantic`, `pydantic-settings` |
-| `urllib.request` plumbing | `httpx2` |
+| `urllib.request` plumbing | `httpx` |
 | a retry `while` loop | `tenacity` |
 | a dict with manual expiry | `cachetools` |
 | a CLI past a couple of flags | `typer` or `click` |
