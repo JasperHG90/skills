@@ -15,8 +15,10 @@ can stack, they are readable by anyone with read access, and they can target the
 branch by alias (`~DEFAULT_BRANCH`) so a branch rename does not leave the repo unprotected.
 
 `scripts/apply_ruleset.py` builds the request body, creates or updates the ruleset by
-name, and reads back the rules GitHub enforces. Do not hand-write the JSON or call
-`gh api .../rulesets` yourself; your job is choosing the inputs.
+name, refuses required checks GitHub has never reported, keeps bypass actors and rules
+it does not manage when updating, and fails if the read-back is missing a rule. Do not
+hand-write the JSON or call `gh api .../rulesets` yourself; your job is choosing the
+inputs.
 
 **Do NOT use this skill** to manage organization-level rulesets
 (`orgs/{org}/rulesets`), protect tags, edit legacy branch protection that someone
@@ -63,40 +65,47 @@ Propose these defaults and ask only about what the defaults do not settle:
 | Merge methods | `--merge-methods ...` | all three | the team has a convention (look at recent merge commits) |
 | Linear history | `--linear-history` | off | the team squashes or rebases only |
 | Admin bypass | `--admin-bypass` | `none` | solo maintainer who wants review rules but must still merge |
+| App bypass | `--bypass-app APP_ID` | none | a release bot pushes version bumps to the default branch |
 | Stale approval dismissal | `--dismiss-stale` | off | approvals should not survive new pushes |
 | Code owner review | `--code-owners` | off | the repo has a `CODEOWNERS` file that is maintained |
 
-**Finding check names.** A required check must match a check run name GitHub has
-already seen, character for character. Read them from a recent pull request or the
-default branch head; never guess them from workflow file names:
+**Finding check names.** A required check must match, character for character, a name
+GitHub has reported. For Actions that is the job's `name:`, not its id, so a job
+`pre-commit:` named `Run pre-commit checks` reports as `Run pre-commit checks`. Never
+guess from workflow files; list what GitHub has actually seen on recent pull requests
+and the default branch:
 
 ```bash
-SHA=$(gh api repos/OWNER/NAME/commits/DEFAULT_BRANCH --jq .sha)
-gh api "repos/OWNER/NAME/commits/$SHA/check-runs?per_page=100" --jq '.check_runs[].name' | sort -u
+python3 scripts/apply_ruleset.py --repo OWNER/NAME --list-checks
 ```
 
-Require only checks that run on **every** pull request. A check that is path-filtered,
-skipped, or only runs on `push` will never report on some pull requests, and those pull
-requests can then never merge. If all checks come from GitHub Actions, add
-`--actions-only` so another app cannot satisfy a check by reusing its name.
+From that list, require only checks that run on **every** pull request. A check that is
+path-filtered, skipped, or only runs on `push` will never report on some pull requests,
+and those pull requests can then never merge; when in doubt, read the workflow's `on:`
+and `paths:` triggers. If every chosen check shows app `15368` (GitHub Actions), add
+`--actions-only` so another app cannot satisfy a check by reusing its name. The script
+refuses a `--check` it has never seen; pass `--allow-unseen-check` only when the
+workflow that produces it is being added in the same change, and tell the user pull
+requests are blocked until it reports.
 
 ### 3. Dry run, show the plan, get a yes
 
 ```bash
 python3 scripts/apply_ruleset.py --repo OWNER/NAME --approvals 1 \
-  --check "pre-commit" --check "test (3.12)" --dry-run
+  --check "Run pre-commit checks" --check "Run tests (3.12)" --dry-run
 ```
 
-The dry run prints whether it will create or update, any warnings, and the body. Show
-the user the settings in plain words (not the JSON) plus every warning, and wait for
+The dry run prints whether it will create or update, any warnings, the body, and on an
+update which existing bypass actors and rules it keeps or removes. Show the user the
+settings in plain words (not the JSON), every warning and every removal, and wait for
 approval. Applying a ruleset changes how everyone with push access works, so do not
 skip this even when the request sounded explicit.
 
 ### 4. Apply and report
 
 Run the same command without `--dry-run`. Report the ruleset id, its URL, and the
-enforced rule types the script printed. If the read-back is missing a rule you set, say
-so; do not report success.
+enforced rule types the script printed. The script exits 1 when GitHub does not enforce
+a rule it just set; report that as a failure with the script's message.
 
 ## Gotchas
 
@@ -106,17 +115,25 @@ so; do not report success.
   requests still required) or `--admin-bypass pull_request`.
 - **Empty repositories.** Apply after the first commit exists on the default branch.
   Once the pull-request rule is active, a direct push of an initial commit is refused.
-- **Matrix job names.** Actions reports matrix jobs as `test (3.12)`, not `test`.
-  Requiring `test` waits forever.
+- **Matrix job names.** Actions reports matrix jobs with their matrix values, e.g.
+  `Run tests (3.12)`, not `Run tests`. `--list-checks` shows the real form.
 - **Plan limits.** Rulesets on private repos need GitHub Pro (personal) or Team/
-  Enterprise (orgs). On Free, GitHub answers 403 "Upgrade to GitHub Pro or make this
-  repository public". Report that; do not fall back to the legacy API, which has the
+  Enterprise (orgs). On Free, GitHub refuses with a 403 that asks you to upgrade or make
+  the repository public. Report that; do not fall back to the legacy API, which has the
   same limit.
+- **Updates keep what the script does not manage.** Bypass actors other than the admin
+  role, and rule types other than the five the script writes (for example
+  `required_signatures` added in the UI), survive a re-run. The admin bypass and the five
+  managed rules follow the flags, so re-running without `--admin-bypass` removes an
+  existing admin bypass; the dry run says so.
 - **Unknown parameter errors.** GitHub adds and renames ruleset parameters. If the API
   rejects a key as invalid, report the exact message to the user rather than editing
   the request by hand; the script needs fixing.
 - **`evaluate` mode** only exists on GitHub Enterprise. Elsewhere it is rejected.
 - **Bots and deploy keys.** Release automation that pushes to the default branch (version
   bumps, changelog commits) is blocked by the pull-request rule. Ask whether such a
-  workflow exists (`grep -rl "git push" .github/workflows`) before applying, and if so
-  tell the user it needs a bypass actor added in the repository settings.
+  workflow exists (`grep -rl "git push" .github/workflows`) before applying. If it pushes
+  as a GitHub App, add `--bypass-app APP_ID` (`gh api /apps/<app-slug> --jq .id`). If it
+  pushes with `GITHUB_TOKEN` or a personal token, the app route does not cover it; tell
+  the user and let them choose between a deploy key bypass in the UI or a PR-based
+  release flow.

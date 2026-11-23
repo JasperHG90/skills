@@ -34,23 +34,38 @@ or ask in plain words: "protect main on octo-org/api and require the test job to
 The script can also run on its own:
 
 ```bash
-# See what would happen
-python3 scripts/apply_ruleset.py --repo octo-org/api --check "test (3.12)" --dry-run
+# Which check names has GitHub actually reported?
+python3 scripts/apply_ruleset.py --repo octo-org/api --list-checks
+
+# See what would happen (an unknown --check is refused)
+python3 scripts/apply_ruleset.py --repo octo-org/api --check "Run tests (3.12)" --dry-run
 
 # Solo maintainer: require PRs, no review
 python3 scripts/apply_ruleset.py --repo me/tool --approvals 0
 
 # Squash-only team with strict, Actions-reported checks
 python3 scripts/apply_ruleset.py --repo octo-org/api --approvals 2 \
-  --check lint --check "test (3.12)" --actions-only --strict \
+  --check Lint --check "Run tests (3.12)" --actions-only --strict \
   --merge-methods squash --linear-history
+
+# A release bot (GitHub App) may push version bumps directly
+python3 scripts/apply_ruleset.py --repo octo-org/api --bypass-app 123456
 ```
 
-Run `python3 scripts/apply_ruleset.py --help` for every flag.
+Re-running updates the ruleset in place. Bypass actors and rules the script does not
+manage (for example `required_signatures` added in the UI) are kept, and the dry run
+lists what is kept or removed. Run `python3 scripts/apply_ruleset.py --help` for every
+flag.
 
 ## Testing
 
-`evals/evals.json` holds test prompts. Run them against a throwaway repository you own;
-each eval applies a real ruleset. Remove it afterwards in the repository's
-**Settings → Rules → Rulesets**, or with
-`gh api -X DELETE repos/OWNER/NAME/rulesets/ID`.
+Unit tests cover the request body and the update merge:
+
+```bash
+uv run --with pytest pytest tests/
+```
+
+`evals/evals.json` holds agent test prompts with assertions. Run them up to the dry run
+(decline at the approval step), which changes nothing. To test the apply step, use a
+throwaway repository and delete the ruleset afterwards in **Settings → Rules →
+Rulesets**, or with `gh api -X DELETE repos/OWNER/NAME/rulesets/ID`.
