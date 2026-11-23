@@ -1,0 +1,24 @@
+{
+  "skill_name": "github-branch-protection",
+  "notes": "Each eval mutates a real repository; run against throwaway repos you own and delete the ruleset afterwards. Assertions can be checked with `gh api repos/OWNER/NAME/rulesets` and `gh api repos/OWNER/NAME/rules/branches/main`.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Protect main on my-org/sandbox-api. Two approvals, and the lint and test jobs from CI must pass before merging.",
+      "expected_output": "Reads check run names from the default branch head (finds e.g. 'lint' and 'test (3.12)', not a guessed 'test'), dry-runs apply_ruleset.py with --approvals 2 and the exact check names, shows the plan, waits for approval, then applies. Read-back lists deletion, non_fast_forward, pull_request and required_status_checks.",
+      "files": ["throwaway org repo with a CI workflow that has a 'lint' job and a matrix 'test' job, at least one completed run on main"]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm the only one working on me/dotfiles. Can you stop me from force-pushing to main and make me use PRs?",
+      "expected_output": "Notices the single collaborator and does not propose 1 required approval with no bypass. Proposes --approvals 0 (or --admin-bypass pull_request), explains why, dry-runs, then applies after approval.",
+      "files": ["throwaway public personal repo with one commit on main"]
+    },
+    {
+      "id": 3,
+      "prompt": "Run branch protection on my-org/sandbox-api again but switch to squash merges only.",
+      "expected_output": "Finds the existing 'default-branch-protection' ruleset; the dry run says 'update ruleset <id>'. Uses --merge-methods squash (optionally --linear-history). After applying, the repo still has exactly one repository-level ruleset.",
+      "files": ["the repo from eval 1 with its ruleset still in place"]
+    }
+  ]
+}
