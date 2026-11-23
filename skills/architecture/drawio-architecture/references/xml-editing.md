@@ -42,7 +42,7 @@ Load and save, keeping ids and attribute order:
 ```python
 import xml.etree.ElementTree as ET
 tree = ET.parse(path); root = tree.getroot()
-page = root.findall("diagram")[0]      # ids are unique per page only: pick the page
+page = root.findall("diagram")[0] if root.tag == "mxfile" else root  # ids are unique per page only
 def wrapper(cid):                       # the element holding the label
     return next(e for e in page.iter() if e.get("id") == cid)
 def cell(cid):                          # the mxCell, inside a wrapper or bare

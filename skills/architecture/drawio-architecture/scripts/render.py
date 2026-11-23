@@ -72,7 +72,9 @@ def main() -> int:
         )
         return 1
     out = args.output or args.diagram.with_name(args.diagram.name + ".render.png")
-    if out.resolve() == args.diagram.resolve():
+    if out.resolve() == args.diagram.resolve() or (
+        out.exists() and out.samefile(args.diagram)
+    ):  # samefile also catches case-only differences and hardlinks
         sys.stderr.write("refusing to overwrite the input; pass a different -o\n")
         return 1
     cmd = [
