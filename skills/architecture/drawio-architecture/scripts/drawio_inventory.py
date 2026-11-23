@@ -36,7 +36,7 @@ from pathlib import Path
 WRAPPERS = {"UserObject", "object"}
 # draw.io desktop writes the source under mxGraphModel, the web app under mxfile
 PNG_KEYS = {b"mxfile", b"mxGraphModel"}
-STEP = re.compile(r"^(\d+):")
+STEP = re.compile(r"^(\d+):(?!\d)")  # "3: ..." is a step, "10:30 ..." is a time
 
 
 @dataclass

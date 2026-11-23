@@ -5,9 +5,10 @@ Usage:
     python render.py DIAGRAM [-o OUT.png] [--page N] [--embed]
 
 --embed writes the diagram source into the PNG (needed when the deliverable is a .drawio.png
-that people keep editing). Without -o the PNG lands next to the input as <name>.png.
+that people keep editing). Without -o the PNG lands next to the input as <name>.render.png,
+so a .drawio.png is never overwritten by accident.
 
-Exit codes: 0 rendered, 1 draw.io not found or export failed.
+Exit codes: 0 rendered, 1 draw.io not found, bad --page or output, or export failed.
 Standard library only.
 """
 
@@ -20,6 +21,9 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from drawio_inventory import load_root  # noqa: E402
 
 CANDIDATES = {
     "Darwin": ["/Applications/draw.io.app/Contents/MacOS/draw.io"],
@@ -67,7 +71,10 @@ def main() -> int:
             "or set DRAWIO to its executable.\n"
         )
         return 1
-    out = args.output or args.diagram.with_suffix(".png")
+    out = args.output or args.diagram.with_name(args.diagram.name + ".render.png")
+    if out.resolve() == args.diagram.resolve():
+        sys.stderr.write("refusing to overwrite the input; pass a different -o\n")
+        return 1
     cmd = [
         exe,
         "--export",
@@ -81,8 +88,14 @@ def main() -> int:
         str(out),
     ]
     if args.page is not None:
-        if args.page < 1:
-            sys.stderr.write("--page is 1-based\n")
+        try:
+            root = load_root(args.diagram)
+        except Exception as exc:  # any unreadable input gets the same one-line error
+            sys.stderr.write(f"{args.diagram}: cannot read draw.io source: {exc}\n")
+            return 1
+        pages = len(root.findall("diagram")) if root.tag == "mxfile" else 1
+        if not 1 <= args.page <= pages:
+            sys.stderr.write(f"--page must be 1..{pages}\n")
             return 1
         cmd += ["--page-index", str(args.page)]  # 1-based since draw.io 27.0.2
     if args.embed:

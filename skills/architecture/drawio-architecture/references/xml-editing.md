@@ -42,8 +42,9 @@ Load and save, keeping ids and attribute order:
 ```python
 import xml.etree.ElementTree as ET
 tree = ET.parse(path); root = tree.getroot()
+page = root.findall("diagram")[0]      # ids are unique per page only: pick the page
 def wrapper(cid):                       # the element holding the label
-    return next(e for e in root.iter() if e.get("id") == cid)
+    return next(e for e in page.iter() if e.get("id") == cid)
 def cell(cid):                          # the mxCell, inside a wrapper or bare
     e = wrapper(cid)
     return e if e.tag == "mxCell" else e.find("mxCell")
@@ -63,7 +64,7 @@ tree.write(path, encoding="unicode")
 Assert as you go, so a stale id fails loudly rather than silently doing nothing:
 
 ```python
-missing = set(wanted_ids) - {e.get("id") for e in root.iter()}
+missing = set(wanted_ids) - {e.get("id") for e in page.iter()}
 assert not missing, missing
 ```
 

@@ -36,8 +36,8 @@ Review architecture/hub.drawio.png against the Terraform in infra/.
 
 | Script | Does |
 | --- | --- |
-| `scripts/drawio_inventory.py DIAGRAM [--page N] [--xml]` | Lists elements and edges with ids and full labels. Flags detached or dangling edge ends, unlabeled edges, step-number gaps, narrow `labelWidth` and embedded Mermaid sources. Reads `.drawio` and `.drawio.png`, compressed or not. `--xml` prints the decoded source. |
-| `scripts/render.py DIAGRAM [-o OUT] [--page N] [--embed]` | Exports a PNG with the draw.io CLI. `--embed` keeps the diagram source inside the PNG. |
+| `scripts/drawio_inventory.py DIAGRAM [--page N] [--xml]` | Lists elements and edges with ids and full labels. Flags detached or dangling edge ends, unlabeled edges, missing or repeated step numbers, narrow `labelWidth` and embedded Mermaid sources. Reads `.drawio` and `.drawio.png`, compressed or not. `--xml` prints the decoded source. |
+| `scripts/render.py DIAGRAM [-o OUT] [--page N] [--embed]` | Exports a PNG with the draw.io CLI, by default to `<name>.render.png`. `--embed` keeps the diagram source inside the PNG. |
 
 ## Files
 
