@@ -1,6 +1,6 @@
 ---
 name: c4-diagrams
-description: Create C4 model architecture diagrams (system context, container, component, plus dynamic and deployment views) as Mermaid, for software systems and data platforms. Use when the user says "C4", "C4 model", "context diagram", "container diagram", "component diagram", "system context", "architecture diagram", "diagram this system", "visualize the architecture", "diagram the data platform / pipeline", or wants audience-appropriate views of a system at different zoom levels. Also use to review or fix an existing C4 diagram. For a full written blueprint document of a repository, use the blueprint skill instead.
+description: Create C4 model architecture diagrams (system context, container, component, plus dynamic and deployment views) as Mermaid, for software systems and data platforms. Use when the user says "C4", "C4 model", "context diagram", "container diagram", "component diagram", "system context", "architecture diagram", "diagram this system", "visualize the architecture", "diagram the data platform / pipeline", or wants audience-appropriate views of a system at different zoom levels. Also use to review or fix an existing C4 diagram. For a full written blueprint document of a repository, use the blueprint skill instead. For diagrams drawn in draw.io (.drawio), use drawio-architecture instead.
 argument-hint: "[system, codebase path, or description]"
 ---
 

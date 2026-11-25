@@ -1,0 +1,24 @@
+{
+  "skill_name": "drawio-architecture",
+  "notes": "Outputs are .drawio files plus a rendered PNG. Assertions are checked with scripts/drawio_inventory.py (structure) and by viewing the render (layout). Copy assets/c4-template.drawio into the workspace as the fixture for evals 2 and 3.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draw a C4 dynamic diagram in draw.io of our login flow: a user in a browser hits the API gateway, which calls the auth service, which checks the user database and returns a JWT. Save it as login-flow.drawio.",
+      "expected_output": "A new .drawio file in the house style: title 'Dynamic diagram: ...', scope line, person, owned containers in orange with [Container: tech], user DB as a cylinder, relationships numbered 1..N with verb plus [protocol], a rendered PNG with no overlaps, inventory reports no problems.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "In c4-template.drawio, the order API now publishes an OrderPlaced event to a Pub/Sub topic after writing the order, and the payment provider is charged by a separate payment worker that consumes the topic. Update the diagram. The drawio MCP isn't available, so edit the file.",
+      "expected_output": "The XML is edited in place (backup made, mtime checked): a Pub/Sub container and a payment worker container added in the house style, steps renumbered in order, the old API-to-payment edge rewired or replaced without stale waypoints, notes citing steps still correct, render inspected, inventory clean.",
+      "files": ["assets/c4-template.drawio"]
+    },
+    {
+      "id": 3,
+      "prompt": "Review c4-template.drawio for C4 and labeling problems. Don't change it.",
+      "expected_output": "Read-only review following references/review-checklist.md: findings cite [id] label, separate truth/C4/picture/source issues, note there is no source of truth to check against, file unchanged.",
+      "files": ["assets/c4-template.drawio"]
+    }
+  ]
+}
