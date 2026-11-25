@@ -1,0 +1,54 @@
+{
+  "skill_name": "github-branch-protection",
+  "notes": "Run every eval up to the dry run only: tell the agent the user declines to apply at the approval step, so no repository changes. The plan is where the judgment lives (check names, approvals, update vs create). To test the apply step, use a throwaway repository you own and delete the ruleset afterwards (`gh api -X DELETE repos/OWNER/NAME/rulesets/ID`). Evals 1 and 2 can run read-only against JasperHG90/skills itself: its CI reports 'Run pre-commit checks' and 'Check Skill Formatting', and it has one collaborator.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Protect main on JasperHG90/skills and make the pre-commit job pass before anything merges. Show me the plan, don't apply it yet.",
+      "expected_output": "Runs --list-checks, maps 'the pre-commit job' to the reported name 'Run pre-commit checks' (not the job id 'pre-commit'), notices the single collaborator, and dry-runs with --approvals 0 or --admin-bypass pull_request. Presents the plan in plain words and stops.",
+      "assertions": [
+        "apply_ruleset.py was run with --list-checks before any --check was chosen",
+        "The dry-run command contains --check \"Run pre-commit checks\"",
+        "No command contains --check pre-commit or --check \"pre-commit\"",
+        "The dry run contains --approvals 0 or --admin-bypass pull_request",
+        "apply_ruleset.py was never run without --dry-run"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm the only one working on JasperHG90/skills. Can you stop me from force-pushing to main and make me use PRs? Just show me what you'd do.",
+      "expected_output": "Does not propose 1 required approval without bypass. Proposes --approvals 0 (or --admin-bypass pull_request) and explains that GitHub forbids approving your own pull request. Dry-runs and stops.",
+      "assertions": [
+        "The dry run contains --approvals 0 or --admin-bypass pull_request",
+        "The reply explains that a solo maintainer cannot approve their own pull request",
+        "The reply lists the rules in plain words (deletion and force-push blocked, pull requests required) rather than only pasting JSON",
+        "apply_ruleset.py was never run without --dry-run"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run branch protection on my-org/sandbox-api again but switch to squash merges only.",
+      "expected_output": "The dry run says 'update ruleset <id>' and lists which existing bypass actors and rules it keeps or removes; the agent relays those removals before asking to apply. After applying, the repo still has exactly one repository-level ruleset and a previously added app bypass is still there.",
+      "files": ["throwaway repo with a 'default-branch-protection' ruleset that has an Integration bypass actor and a required_signatures rule added in the UI"],
+      "assertions": [
+        "The dry-run output contains 'update ruleset'",
+        "The dry run contains --merge-methods squash",
+        "The reply mentions the kept bypass actor or the kept required_signatures rule",
+        "After applying, gh api repos/OWNER/NAME/rulesets?includes_parents=false lists exactly one ruleset",
+        "After applying, the ruleset still has the Integration bypass actor and the required_signatures rule"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Require the tests to pass before merging on my-org/pr-only-ci. Plan only.",
+      "expected_output": "The repo's CI runs only on pull_request, so the default branch head has no check runs. --list-checks still finds the test check from recent pull request heads, and the agent requires that exact name.",
+      "files": ["throwaway repo whose only workflow triggers on pull_request, with a matrix job named 'Run tests' over two Python versions and at least one PR that ran it"],
+      "assertions": [
+        "apply_ruleset.py was run with --list-checks",
+        "Every --check value in the dry run appears in the --list-checks output",
+        "Matrix checks are named with their matrix value, e.g. \"Run tests (3.12)\", not \"Run tests\"",
+        "--allow-unseen-check was not used"
+      ]
+    }
+  ]
+}
